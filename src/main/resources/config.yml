@@ -1,0 +1,3 @@
+plugin-prefix: "&7[&dReservations&7] "
+baseCommand: "reservation"
+appointment-confirm: "has made an appointment."

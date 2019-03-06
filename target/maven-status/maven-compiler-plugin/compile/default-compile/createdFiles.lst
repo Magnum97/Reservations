@@ -1,0 +1,5 @@
+me\magnum\reservations\util\SimpleConfig.class
+me\magnum\reservations\commands\Reservation.class
+me\magnum\reservations\util\Config.class
+me\magnum\reservations\util\SimpleConfig$PrimitiveWrapper.class
+me\magnum\reservations\Reservations.class

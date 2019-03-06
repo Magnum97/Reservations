@@ -1,0 +1,6 @@
+name: Reservations
+version: 1.0.0-b0305-0951
+main: me.magnum.reservations.Reservations
+prefix: [Reservations]
+authors: [Magnum1997]
+description: Simple ticket system
