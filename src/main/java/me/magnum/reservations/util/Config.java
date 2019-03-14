@@ -22,6 +22,8 @@ public class Config extends SimpleConfig {
 	
 	private void onLoad () {
 		// Set stuff here
+		DataWorks dw = new DataWorks();
+		dw.onLoad();
 		pre = getString("plugin-prefix").replace("&", "§");
 		command = getString("baseCommand");
 		confirmAppt = getString("appointment-confirm");

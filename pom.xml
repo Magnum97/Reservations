@@ -7,7 +7,7 @@
     <groupId>me.magnum.reservations</groupId>
     <artifactId>Reservations</artifactId>
     <version>
-        1.0.0-b0308-1004
+        1.0.0-b0313-1340
     </version>
     <packaging>jar</packaging>
 
@@ -128,12 +128,14 @@
             <scope>provided</scope>
         </dependency>
 <!--MySQL Library-->
+<!--
         <dependency>
             <groupId>me.vagdedes.mysql</groupId>
             <artifactId>MySql</artifactId>
             <version>2.4</version>
             <scope>provided</scope>
         </dependency>
+-->
         <!-- Aikar command formatting -->
         <dependency>
             <groupId>co.aikar</groupId>
