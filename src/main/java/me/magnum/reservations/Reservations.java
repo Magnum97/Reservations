@@ -38,6 +38,7 @@ public final class Reservations extends JavaPlugin {
 		log.info("Registering commands");
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void registerCommands () {
 		commandManager.enableUnstableAPI("help");
 		commands.addReplacement("command", command);

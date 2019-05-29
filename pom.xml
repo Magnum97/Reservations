@@ -7,13 +7,13 @@
     <groupId>me.magnum.reservations</groupId>
     <artifactId>Reservations</artifactId>
     <version>
-        1.0.0-b0313-1340
+        1.1.0
     </version>
     <packaging>jar</packaging>
 
     <name>Reservations</name>
 
-    <description>Move horse data from 2.0 to 3.0 database</description>
+    <description>Simple ticket system</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>me.magnum.reservations.Reservations</mainClass>
@@ -24,7 +24,8 @@
 
     <build>
         <defaultGoal>clean package</defaultGoal>
-        <finalName>${project.artifactId}-${project.version}</finalName>
+        <finalName>${project.artifactId}</finalName>
+        <!--<finalName>${project.artifactId}-${project.version}</finalName>-->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -102,8 +103,8 @@
     <dependencies>
         <!-- My Common Library -->
         <dependency>
-            <groupId>me.magnum.lib</groupId>
-            <artifactId>Common</artifactId>
+            <groupId>me.magnum</groupId>
+            <artifactId>CommonLib</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
@@ -144,7 +145,7 @@
         </dependency>
 <!-- Head Database -->
         <dependency>
-            <groupId>me.arcaniax.hdb</groupId>
+            <groupId>me.arcaniax</groupId>
             <artifactId>HeadDatabase</artifactId>
             <version>4.6.3</version>
             <scope>provided</scope>

@@ -1,6 +1,7 @@
 package me.magnum.reservations.util;
 
 import me.magnum.lib.CheckSender;
+import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -9,8 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
-import static me.magnum.reservations.util.Config.confirmAppt;
-import static me.magnum.reservations.util.Config.pre;
+import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
@@ -18,8 +18,8 @@ public class DataWorks {
 	public DataWorks () {
 	}
 	
-	private static SimpleConfig data = new SimpleConfig("reservations.yml", false);
-	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>();
+	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
+	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>(99,.75f,false);
 	private static int next;
 	
 	void onLoad () {
@@ -37,43 +37,47 @@ public class DataWorks {
 		}
 	}
 	
-	
+	@SuppressWarnings("deprecation")
 	public String make (String player) {
 		String idString;
-		String name;
 		String result;
 		OfflinePlayer p = getOfflinePlayer(player);
 		if (p.hasPlayedBefore()) {
 			idString = p.getUniqueId().toString();
-			name = p.getName();
-			// data.set("next-appointment", next);
-			// data.set(idString + ".name", name);
-			// data.set(idString + ".number", next);
-			// for (int key : clients.keySet()) {
-			// 	data.set("waiting-list" + key, clients.get(key));
-			// }
 			clients.put(next, idString);
 			next++;
+			if (next > 99) {
+				next = 1;
+			}
 			data.set("next-appointment", next);
 			data.write("waiting-list", clients);
 			data.saveConfig();
-			result = name + " " + confirmAppt;
+			result = confirmAppt.replaceAll("%player%", p.getName());
 			return result;
 		}
 		else {
-			result = player + " has never logged in.";
+			result = player + " has not logged in before.";
 			return result;
 		}
+	}
+	@SuppressWarnings("deprecation")
+	public boolean check (String player) {
+		OfflinePlayer p = getOfflinePlayer(player);
+		return clients.containsValue(p.getUniqueId().toString());
 	}
 	
 	public void view (CommandSender sender) {
 		if (!CheckSender.isCommand(sender)) {
+			if (clients.size() < 1) {
+				Common.tell(sender, pre + Config.noAppt);
+			}
 			HashMap <Integer, OfflinePlayer> list = new HashMap <>();
 			// OfflinePlayer p;
 			clients.forEach((i, s) -> list.put(i, getOfflinePlayer(UUID.fromString(s))));
 			
 			list.forEach(((i, p) ->
-					sender.sendMessage(pre + "§6Number: §e" + i + " §6Client: §a" + p.getName() + "\n"))
+					Common.tell(sender, pre + format.
+							replaceAll("#", i.toString()).replaceAll("%player%", p.getName())))
 			);
 		}
 		

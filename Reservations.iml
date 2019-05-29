@@ -21,7 +21,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: me.magnum.lib:Common:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: me.magnum:CommonLib:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: fr.minuskube.inv:smart-invs:1.2.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT" level="project" />
@@ -34,7 +34,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.yaml:snakeyaml:1.19" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.md-5:bungeecord-chat:1.12-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: me.vagdedes.mysql:MySql:2.4" level="project" />
     <orderEntry type="library" name="Maven: co.aikar:acf-paper:0.5.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: co.aikar:acf-bukkit:0.5.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: co.aikar:acf-core:0.5.0-SNAPSHOT" level="project" />
@@ -44,7 +43,7 @@
     <orderEntry type="library" name="Maven: net.jodah:expiringmap:0.5.8" level="project" />
     <orderEntry type="library" name="Maven: co.aikar:minecraft-timings:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: me.arcaniax.hdb:HeadDatabase:4.6.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: me.arcaniax:HeadDatabase:4.6.3" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.HakYazilim.horserpg:HorseRPGv3:3.0.1" level="project" />
   </component>
 </module>

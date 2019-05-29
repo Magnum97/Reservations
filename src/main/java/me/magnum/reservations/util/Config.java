@@ -1,13 +1,23 @@
 package me.magnum.reservations.util;
 
+import me.magnum.lib.Common;
+import me.magnum.reservations.Reservations;
+import me.magnum.reservations.commands.Reservation;
+
 public class Config extends SimpleConfig {
 	
 	public static int next;
 	public static String pre;
 	public static String confirmAppt;
 	public static String command;
+	public static String playerConfirm;
+	public static String logConfirm;
+	public static String noAppt;
+	public static String noMakeOther;
+	public static String hasAppt;
+	public static String format;
 	
-	public Config (String fileName) {
+	private Config (String fileName) {
 		super(fileName);
 		setHeader(new String[] {
 				"--------------------------------------------------------",
@@ -21,12 +31,19 @@ public class Config extends SimpleConfig {
 	}
 	
 	private void onLoad () {
+		Common.setInstance(Reservations.getPlugin());
 		// Set stuff here
 		DataWorks dw = new DataWorks();
 		dw.onLoad();
 		pre = getString("plugin-prefix").replace("&", "§");
 		command = getString("baseCommand");
-		confirmAppt = getString("appointment-confirm");
+		confirmAppt = getString("messages.appointment-confirm");
+		playerConfirm = getString("messages.player-confirm");
+		logConfirm = getString("messages.log-confirm");
+		noAppt = getString("messages.no-appts");
+		noMakeOther = getString("messages.no-permission");
+		hasAppt = getString("messages.has-appt");
+		format = getString("list-format");
 	}
 	
 	public static void init () {

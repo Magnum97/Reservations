@@ -28,6 +28,7 @@ import java.util.Set;
  *
  * @author SpigotCourse
  */
+@SuppressWarnings("WeakerAccess")
 public class SimpleConfig extends YamlConfiguration {
 
     /**

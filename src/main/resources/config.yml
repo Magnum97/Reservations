@@ -1,3 +1,10 @@
 plugin-prefix: "&7[&dReservations&7] "
 baseCommand: "reservation"
-appointment-confirm: "has made an appointment."
+list-format: "&6Number: &e # &6Client: &a %player%\n"
+messages:
+  appointment-confirm: "%player% has made an appointment."
+  player-confirm: "%player% took a number."
+  log-confirm: "%player% took a number."
+  no-appts: "There are no appointments on the books."
+  no-permission: "You are not allowed to make appointments for other players."
+  has-appt: "You have an appointment already."
