@@ -77,6 +77,23 @@ public class Reservation extends BaseCommand {
 		Common.tell(sender, pre + result);
 	}
 	
+	@Subcommand("wipe")
+	@Description("Wipe the list clean baby!")
+	@CommandPermission("reservations.clear.all")
+	public void onWipe (CommandSender sender, @Optional String confirm) {
+		if (confirm == null) {
+			confirm = "";
+		}
+		if (confirm.equalsIgnoreCase("confirm")) {
+			DataWorks dw = new DataWorks();
+			dw.wipe(sender);
+		}
+		else {
+			Common.tell(sender, pre + "&cYou are about to clear the list.",
+			            pre + "&eTo confirm add &6confirm&e after the command.");
+		}
+	}
+	
 	@HelpCommand
 	public void onHelp (CommandSender sender, CommandHelp help) {
 		help.showHelp();
