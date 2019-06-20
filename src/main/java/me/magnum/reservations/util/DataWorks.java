@@ -19,7 +19,7 @@ public class DataWorks {
 	}
 	
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
-	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>(99,.75f,false);
+	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>(99, .75f, false);
 	private static int next;
 	
 	void onLoad () {
@@ -60,6 +60,7 @@ public class DataWorks {
 			return result;
 		}
 	}
+	
 	@SuppressWarnings("deprecation")
 	public boolean check (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
@@ -84,7 +85,6 @@ public class DataWorks {
 	}
 	
 	public String clear (int key) {
-		String name;
 		String result;
 		if (clients.containsKey(key)) {
 			OfflinePlayer offlinePlayer = getOfflinePlayer(UUID.fromString(clients.get(key)));
@@ -99,6 +99,18 @@ public class DataWorks {
 			return result;
 		}
 		
+	}
+	
+	public void wipe (CommandSender sender) {
+		if (clients.size() > 1) {
+			HashMap <Integer, String> res = new HashMap <Integer, String>(clients);
+			for (int i : res.keySet()) {
+				Common.tell(sender, clear(i));
+			}
+		}
+		else {
+			Common.tell(sender, noAppt);
+		}
 	}
 	
 	public void closeData () {
