@@ -1,0 +1,80 @@
+// Configure Auto Relocation
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+
+// We use this to replace version in plugin.yml
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
+group = 'me.magnum.reservations'
+version = '1.1.0'
+description = 'Simple ticket system'
+sourceCompatibility = '1.8'
+archivesBaseName = 'Reservations' // Put your artifactId here
+
+mainClassName = 'me.magnum.reservations.Reservations'
+
+repositories {
+    mavenLocal()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://jitpack.io' }
+    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+    maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
+}
+compileJava {
+    options.compilerArgs += ["-parameters"]
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+}
+
+shadowJar {
+//    archiveFileName = ${archivesBaseName}.${archiveExtension}
+    version = null
+    classifier = null
+    minimize()
+}
+
+dependencies {
+    compileOnly 'com.HakYazilim.horserpg:HorseRPGv3:3.0.1'
+    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+    implementation 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
+    shadow 'fr.minuskube.inv:smart-invs:1.2.6'
+    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+}
+/* This will replace '@VERSION@' in the plugin.yml with the version declared above, just put '@VERSION@' for the version in the plugin.yml Example plugin.yml:
+
+name: @NAME@
+main: @MAIN@
+version: @VERSION@
+authors: [Magnum1997]
+description: Make and give items special to your server.
+
+*/
+processResources {
+    filter ReplaceTokens, tokens: [
+            "VERSION": version,
+            "NAME"   : archivesBaseName,
+            "MAIN"   : mainClassName,
+    ]
+}
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+//    prefix = "sha" // Default value is "shadow"
+
+}
+
+tasks.shadowJar.dependsOn tasks.relocateShadowJar
+
+build.dependsOn shadowJar
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

@@ -1,6 +1,6 @@
-name: Reservations
-version: ${project.version}
-main: me.magnum.reservations.Reservations
-prefix: [Reservations]
+name: @NAME@
+main: @MAIN@
+version: @VERSION@
 authors: [Magnum1997]
-description: Simple ticket system
+description: Make and give items special to your server.
+prefix: [Reservations]
