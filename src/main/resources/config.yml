@@ -8,3 +8,4 @@ messages:
   no-appts: "There are no appointments on the books."
   no-permission: "You are not allowed to make appointments for other players."
   has-appt: "You have an appointment already."
+  online-vets: "There are %vets% online right now."

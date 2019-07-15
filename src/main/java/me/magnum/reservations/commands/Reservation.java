@@ -22,7 +22,7 @@ public class Reservation extends BaseCommand {
 	public Reservation () {
 	}
 	
-	@Subcommand("make")
+	@Subcommand("make|call")
 	@Description("Make a reservation and get a number")
 	@CommandCompletion("@players")
 	@CommandPermission("reservations.make.self")
@@ -43,16 +43,22 @@ public class Reservation extends BaseCommand {
 			return;
 		}
 		String result = dw.make(player);
+		if (result.contains(sender.getName()))
+			result = result.replace(sender.getName(), "You");
 		Common.tell(sender, pre + result);
 		Common.setInstance(Reservations.getPlugin());
-		Common.log(pre + Config.logConfirm.replaceAll("%player%", player));
-		// Common.tell(sender, pre + "Appointment made for " + player); /* Un needed with log message ? */
+		Common.log(Config.logConfirm.replaceAll("%player%", player));
+		
+		int v = 0;
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (p.hasPermission("reservations.notify")) {
 				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
 				Common.tell(p, pre + Config.playerConfirm.replaceAll("%player%", player));
-				
+				v++;
 			}
+		}
+		if (sender instanceof Player) { //todo change to config based message.
+			Common.tell(sender,pre + "There are " + v + " vets online right now.");
 		}
 	}
 	
