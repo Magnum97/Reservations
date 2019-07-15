@@ -1,6 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
+    <mapping directory="$USER_HOME$/Documents/LuckPerms" vcs="Git" />
+    <mapping directory="$USER_HOME$/Documents/TPPets" vcs="Git" />
+    <mapping directory="$USER_HOME$/Documents/forks/CratesPlus" vcs="Git" />
+    <mapping directory="$USER_HOME$/Documents/forks/TPPets" vcs="Git" />
+    <mapping directory="$USER_HOME$/Downloads/masteryproject" vcs="Git" />
+    <mapping directory="$USER_HOME$/FastAsyncWorldEdit-1.13" vcs="Git" />
+    <mapping directory="$USER_HOME$/FastAsyncWorldEdit-1.13a" vcs="Git" />
+    <mapping directory="$USER_HOME$/HorseRPG" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ApexCommands" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../AutoTitles" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../AutomaticInventory" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../BarAPI" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../BetonQuest-Editor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../BossBarAnnouncer" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../BreedablePets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ChatControl-Pro" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../DatabaseLib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Dynamic-GUI-Testing" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Essentials" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../FastAsyncWorldedit" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../FastTravel" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../GPFix/GriefPrevention" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../GetUUID" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../GriefPrevention" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Guilds" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HMCL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HealthBar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HorseMover" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HorseRPG" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HorseRPG-savy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../JavaSQLAPI" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../LogBlock" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../MinecraftUUID" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Multiverse-Core" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../PartyRoomPlugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../PetManager" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../PluginTest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../RNC" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../RemoteConsole" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ServerSpecials" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ShopChest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../UltraBar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mcMMO" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mcMMO-WorldGuard" vcs="Git" />
+    <mapping directory="$USER_HOME$/MasteryProject" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/BuildData" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/Bukkit" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/CraftBukkit" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/Spigot" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/Spigot/Bukkit" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/Spigot/CraftBukkit" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/Spigot/Spigot-API" vcs="Git" />
+    <mapping directory="$USER_HOME$/buildtools/Spigot/Spigot-Server" vcs="Git" />
+    <mapping directory="$USER_HOME$/darkness" vcs="Git" />
+    <mapping directory="$USER_HOME$/dhutils/dhutils" vcs="Git" />
   </component>
 </project>
