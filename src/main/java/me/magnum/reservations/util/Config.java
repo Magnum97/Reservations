@@ -2,7 +2,6 @@ package me.magnum.reservations.util;
 
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
-import me.magnum.reservations.commands.Reservation;
 
 public class Config extends SimpleConfig {
 	
@@ -16,7 +15,7 @@ public class Config extends SimpleConfig {
 	public static String noMakeOther;
 	public static String hasAppt;
 	public static String format;
-	
+	public static String waiting;
 	private Config (String fileName) {
 		super(fileName);
 		setHeader(new String[] {
@@ -44,6 +43,7 @@ public class Config extends SimpleConfig {
 		noMakeOther = getString("messages.no-permission");
 		hasAppt = getString("messages.has-appt");
 		format = getString("list-format");
+		waiting = getString("messages.waiting");
 	}
 	
 	public static void init () {

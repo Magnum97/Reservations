@@ -9,3 +9,4 @@ messages:
   no-permission: "You are not allowed to make appointments for other players."
   has-appt: "You have an appointment already."
   online-vets: "There are %vets% online right now."
+  waiting: "&6There are players waiting for a vet"

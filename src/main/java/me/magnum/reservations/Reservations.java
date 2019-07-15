@@ -7,6 +7,7 @@ import me.magnum.reservations.commands.Reservation;
 import me.magnum.reservations.util.Config;
 import me.magnum.reservations.util.DataWorks;
 import me.magnum.reservations.util.SimpleConfig;
+import me.magnum.reservations.util.VetListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,6 +37,7 @@ public final class Reservations extends JavaPlugin {
 		commands = commandManager.getCommandReplacements();
 		registerCommands();
 		log.info("Registering commands");
+		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
 	}
 	
 	@SuppressWarnings("deprecation")
