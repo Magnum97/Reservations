@@ -1,6 +1,8 @@
 plugin-prefix: "&7[&dReservations&7] "
 baseCommand: "reservation"
 list-format: "&6Number: &e # &6Client: &a %player%\n"
+# Remind permission reservations.notify every x seconds is players are on the /reservation list
+reminder-delay: 60
 messages:
   appointment-confirm: "%player% has made an appointment."
   player-confirm: "%player% took a number."

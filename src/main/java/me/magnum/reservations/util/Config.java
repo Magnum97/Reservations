@@ -16,6 +16,8 @@ public class Config extends SimpleConfig {
 	public static String hasAppt;
 	public static String format;
 	public static String waiting;
+	public static int remindDelay;
+	
 	private Config (String fileName) {
 		super(fileName);
 		setHeader(new String[] {
@@ -44,6 +46,7 @@ public class Config extends SimpleConfig {
 		hasAppt = getString("messages.has-appt");
 		format = getString("list-format");
 		waiting = getString("messages.waiting");
+		remindDelay = getInt("reminder-delay");
 	}
 	
 	public static void init () {

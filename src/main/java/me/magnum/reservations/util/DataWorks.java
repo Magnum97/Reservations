@@ -5,10 +5,9 @@ import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.UUID;
+import java.util.*;
 
 import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
@@ -20,6 +19,7 @@ public class DataWorks {
 	
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
 	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>(99, .75f, false);
+	public static List <Player> onlineVets = new ArrayList<>();
 	private static int next;
 	
 	void onLoad () {
@@ -111,6 +111,26 @@ public class DataWorks {
 		else {
 			Common.tell(sender, noAppt);
 		}
+	}
+	
+	/**
+	 * Add player to list of online vets
+	 *
+	 * @param player Player to add to the list
+	 *               of online vets.
+	 */
+	public void addVet (Player player) {
+		onlineVets.add(player);
+	}
+	
+	/**
+	 * Remove a vet from the list to be notified
+	 * of waiting appointments.
+	 *
+	 * @param player Player to remove from the list.
+	 */
+	public void removeVet (Player player) {
+		onlineVets.remove(player);
 	}
 	
 	public void closeData () {
