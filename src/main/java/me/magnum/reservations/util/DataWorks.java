@@ -1,12 +1,15 @@
 package me.magnum.reservations.util;
 
+import com.google.gson.Gson;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
+import me.magnum.reservations.type.Appointment;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.time.*;
 import java.util.*;
 
 import static me.magnum.reservations.util.Config.*;
@@ -19,7 +22,10 @@ public class DataWorks {
 	
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
 	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>(99, .75f, false);
-	public static List <Player> onlineVets = new ArrayList<>();
+	private static HashMap <OfflinePlayer, Appointment> appointmentHashMap = new HashMap <>();
+	// public static List <HashMap <OfflinePlayer, Appointment>> appt = new LinkedList <>();
+	public static List <Appointment> appointmentList = new LinkedList <>();
+	public static List <Player> onlineVets = new ArrayList <>();
 	private static int next;
 	
 	void onLoad () {
@@ -35,6 +41,44 @@ public class DataWorks {
 			Reservations.log.warning("Could not load waiting list.");
 			e.printStackTrace();
 		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	private OfflinePlayer getPlayer (String player) {
+		OfflinePlayer offlinePlayer = getOfflinePlayer(player);
+		if (offlinePlayer.hasPlayedBefore()) {
+			return offlinePlayer;
+		}
+		return null;
+	}
+	
+	public String makeAppt (String player, String time) {
+		String result;
+		OfflinePlayer offlinePlayer = getPlayer(player);
+		if (!offlinePlayer.hasPlayedBefore()) {
+			result = player + " has never logged in to this server.";
+			return result;
+		}
+		else {
+			LocalDateTime ldt = getTime(time);
+			Appointment appointment = new Appointment(offlinePlayer, ldt);
+			result = pre + "Appointment created";
+			Gson gson = new Gson();
+			String json = gson.toJson(appointment);
+			data.write("appointments", json); // todo allow appointments for same time? time range?
+			data.saveConfig();
+			appointmentList.add(appointment);
+			return result;
+		}
+	}
+	public void listAppointments(CommandSender sender){
+		if (!CheckSender.isCommand(sender)){
+			if (appointmentList.isEmpty()){
+				Common.tell(sender, pre+"No appts");
+			}
+		}
+		appointmentList.forEach(a ->
+				Common.tell(sender, pre+a.getTime()+" "+a.getPlayer().getName()));
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -59,6 +103,20 @@ public class DataWorks {
 			result = player + " has not logged in before.";
 			return result;
 		}
+	}
+	
+	private LocalDateTime parseDateTime (String date, String time) {
+		LocalDateTime ldt = null;
+		try {
+			LocalDate parseDate = LocalDate.parse(date);
+			LocalTime parseTime = LocalTime.parse(time);
+			ldt = LocalDateTime.of(parseDate, parseTime);
+		}
+		catch (DateTimeException de) {
+			de.printStackTrace();
+			Common.log(pre + "§3Invalid date");
+		}
+		return ldt;
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -133,7 +191,55 @@ public class DataWorks {
 		onlineVets.remove(player);
 	}
 	
-	public void closeData () {
+	/**
+	 * Get a LocalDateTime of next occurrence of specified
+	 * time
+	 *
+	 * @param time String of time in format HH:mm or hh:mma
+	 * @return
+	 */
+	public LocalDateTime getTime (String time) { //todo remove debugging messages
+		// DateTimeFormatter formata = DateTimeFormatter.ofPattern("HH:mm");
+		// DateTimeFormatter formatb = DateTimeFormatter.ofPattern("hh:mm");
+		LocalTime midnight = LocalTime.MIDNIGHT;
+		LocalDate today = LocalDate.now(ZoneId.of("US/Eastern"));
+		
+		LocalDateTime lastMidnight = LocalDateTime.of(today, midnight);
+		LocalDateTime lt = LocalDateTime.now();
+		System.out.println(lt);
+		// System.out.println("lt =" + lt.format(formata));
+		// System.out.println("lt =" + lt.format(formatb));
+		
+		String stringHours = time.split("[:]")[0];
+		System.out.println(stringHours);
+		int hours = Integer.valueOf(time.split("[:]")[0]);
+		if (time.contains("p")) {
+			hours += 12;
+			System.out.println(hours);
+			System.out.println(time);
+			time = time.split("[:]")[1].split("[p]")[0];
+			System.out.println(time);
+		}
+		else {
+			time = time.split("[:]")[1];
+		}
+		System.out.println(time);
+		int minutes = Integer.valueOf(time);
+		
+		LocalDateTime tt = lastMidnight.plusHours(hours).plusMinutes(minutes);
+		System.out.println("tt =" + tt);
+		
+		if (tt.isBefore(lt)) {
+			tt = tt.plusDays(1);
+			System.out.println("New tt = " + tt);
+		}
+		else {
+			System.out.println("Time is already in the future.");
+		}
+		return tt;
+	}
+	
+	public void closeData () { //todo Save Appointments to config file
 		clients.clear();
 	}
 }

@@ -22,7 +22,7 @@ public final class Reservations extends JavaPlugin {
 	public static Reservations plugin;
 	@Getter
 	public static SimpleConfig cfg;
-	private BukkitCommandManager commandManager;
+	@Getter public BukkitCommandManager commandManager;
 	private CommandReplacements commands;
 	public static Logger log;
 	
