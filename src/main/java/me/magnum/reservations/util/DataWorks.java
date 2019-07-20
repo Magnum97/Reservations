@@ -21,9 +21,9 @@ public class DataWorks {
 	
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
 	public static Map <Integer, String> clients = new TreeMap <>();
-	private static HashMap <OfflinePlayer, Appointment> appointmentHashMap = new HashMap <>();
+	private static Map <LocalDateTime, String> appointmentMap = new TreeMap <>();
 	// public static List <HashMap <OfflinePlayer, Appointment>> appt = new LinkedList <>();
-	public static List <Appointment> appointmentList = new LinkedList <>();
+	// public static List <Appointment> appointmentMap = new LinkedList <>();
 	public static List <Player> onlineVets = new ArrayList <>();
 	private static int next;
 	
@@ -54,31 +54,29 @@ public class DataWorks {
 	public String makeAppt (String player, String time) {
 		String result;
 		OfflinePlayer offlinePlayer = getPlayer(player);
-		if (!offlinePlayer.hasPlayedBefore()) {
+		if ((offlinePlayer == null) || !offlinePlayer.hasPlayedBefore()) {
 			result = player + " has never logged in to this server.";
 			return result;
 		}
-		else {
-			LocalDateTime ldt = getTime(time);
-			Appointment appointment = new Appointment(offlinePlayer, ldt);
-			result = pre + "Appointment created";
-			Gson gson = new Gson();
-			String json = gson.toJson(appointment);
-			data.write("appointments", json); // todo allow appointments for same time? time range?
-			data.saveConfig();
-			appointmentList.add(appointment);
-			return result;
-		}
+		LocalDateTime ldt = getTime(time);
+		Appointment appointment = new Appointment(offlinePlayer, ldt);
+		result = pre + "Appointment created";
+		Gson gson = new Gson();
+		String json = gson.toJson(appointment);
+		data.write("appointments", json); // todo allow appointments for same time? time range?
+		data.saveConfig();
+		appointmentMap.put(ldt, offlinePlayer.getUniqueId().toString());
+		return result;
 	}
 	
 	public void listAppointments (CommandSender sender) {
 		if (!CheckSender.isCommand(sender)) {
-			if (appointmentList.isEmpty()) {
+			if (appointmentMap.isEmpty()) {
 				Common.tell(sender, pre + "No appts");
 			}
 		}
-		appointmentList.forEach(a ->
-				                        Common.tell(sender, pre + a.getTime() + " " + a.getPlayer().getName()));
+		appointmentMap.forEach((t, p) ->
+				                       Common.tell(sender, pre + t.toString() + " " + getOfflinePlayer(UUID.fromString(p))));
 	}
 	
 	@SuppressWarnings("deprecation")
