@@ -3,6 +3,7 @@ package me.magnum.reservations.util;
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class Config extends SimpleConfig {
 	
 	public static int next;

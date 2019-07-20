@@ -2,6 +2,7 @@ package me.magnum.reservations.util;
 
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -13,10 +14,13 @@ import static me.magnum.reservations.util.Config.waiting;
 
 public class VetListener implements Listener {
 	
+	private DataWorks dw = new DataWorks();
+	
 	@EventHandler
 	public void onJoin (PlayerJoinEvent event) {
-		DataWorks.onlineVets.add(event.getPlayer());
-		if (DataWorks.clients.size() > 0) {
+		Player player = event.getPlayer();
+		if (player.hasPermission("horserpg.vet")) {
+			dw.addVet(event.getPlayer());
 			BukkitRunnable notice = new BukkitRunnable() {
 				@Override
 				public void run () {
@@ -29,7 +33,8 @@ public class VetListener implements Listener {
 	
 	@EventHandler
 	public void onQuit (PlayerQuitEvent event) {
-		DataWorks.onlineVets.remove(event.getPlayer());
+		dw.removeVet(event.getPlayer());
+		
 	}
 	
 }

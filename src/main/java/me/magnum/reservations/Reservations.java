@@ -7,14 +7,10 @@ import me.magnum.lib.Common;
 import me.magnum.reservations.commands.Reservation;
 import me.magnum.reservations.util.*;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.logging.Logger;
-
-import static me.magnum.reservations.util.Config.*;
-import static me.magnum.reservations.util.DataWorks.onlineVets;
+import static me.magnum.reservations.util.Config.command;
 
 public final class Reservations extends JavaPlugin {
 	
@@ -22,26 +18,28 @@ public final class Reservations extends JavaPlugin {
 	public static Reservations plugin;
 	@Getter
 	public static SimpleConfig cfg;
-	@Getter public BukkitCommandManager commandManager;
+	@Getter
+	public BukkitCommandManager commandManager;
 	private CommandReplacements commands;
-	public static Logger log;
+	private BukkitScheduler bs = Bukkit.getScheduler();
 	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable () {
 		plugin = this;
-		log = Bukkit.getLogger();
+		ReminderTask reminder = new ReminderTask();
+		Common.setInstance(plugin);
+		Common.log("Loading Config...");
 		cfg = new SimpleConfig("config.yml");
-		log.info("Loading Config...");
 		Config.init();
-		log.info("Initializing command manager...");
+		Common.log("Initializing command manager...");
 		commandManager = new BukkitCommandManager(this);
 		commands = commandManager.getCommandReplacements();
 		registerCommands();
-		log.info("Registering commands");
+		Common.log("Registering commands");
 		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask
-				(plugin, new ReminderTask() ,(long) 20 * 300, (long) 20 * remindDelay );
+		bs.runTaskLater(plugin, reminder, 20 * 10);
+		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * Config.remindDelay);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -54,8 +52,8 @@ public final class Reservations extends JavaPlugin {
 	
 	@Override
 	public void onDisable () {
-		
-		DataWorks.onlineVets.clear();
-		DataWorks.clients.clear();
+		DataWorks dw = new DataWorks();
+		bs.cancelAllTasks();
+		dw.closeData();
 	}
 }

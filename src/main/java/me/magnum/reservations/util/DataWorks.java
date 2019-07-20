@@ -3,7 +3,6 @@ package me.magnum.reservations.util;
 import com.google.gson.Gson;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
-import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -21,7 +20,7 @@ public class DataWorks {
 	}
 	
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
-	public static LinkedHashMap <Integer, String> clients = new LinkedHashMap <>(99, .75f, false);
+	public static Map <Integer, String> clients = new TreeMap <>();
 	private static HashMap <OfflinePlayer, Appointment> appointmentHashMap = new HashMap <>();
 	// public static List <HashMap <OfflinePlayer, Appointment>> appt = new LinkedList <>();
 	public static List <Appointment> appointmentList = new LinkedList <>();
@@ -29,16 +28,16 @@ public class DataWorks {
 	private static int next;
 	
 	void onLoad () {
-		Reservations.log.info("Getting next appointment");
+		Common.log("Getting next appointment");
 		next = data.getInt("next-appointment", 1);
 		try {
-			Reservations.log.info("Loading waiting list...");
+			Common.log("Loading waiting list...");
 			for (String key : data.getConfigurationSection("waiting-list").getKeys(false)) {
 				clients.put(Integer.parseInt(key), data.getString("waiting-list." + key));
 			}
 		}
 		catch (NullPointerException e) {
-			Reservations.log.warning("Could not load waiting list.");
+			Common.log("Could not load waiting list.");
 			e.printStackTrace();
 		}
 	}
@@ -71,14 +70,15 @@ public class DataWorks {
 			return result;
 		}
 	}
-	public void listAppointments(CommandSender sender){
-		if (!CheckSender.isCommand(sender)){
-			if (appointmentList.isEmpty()){
-				Common.tell(sender, pre+"No appts");
+	
+	public void listAppointments (CommandSender sender) {
+		if (!CheckSender.isCommand(sender)) {
+			if (appointmentList.isEmpty()) {
+				Common.tell(sender, pre + "No appts");
 			}
 		}
 		appointmentList.forEach(a ->
-				Common.tell(sender, pre+a.getTime()+" "+a.getPlayer().getName()));
+				                        Common.tell(sender, pre + a.getTime() + " " + a.getPlayer().getName()));
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -130,14 +130,11 @@ public class DataWorks {
 			if (clients.size() < 1) {
 				Common.tell(sender, pre + Config.noAppt);
 			}
-			HashMap <Integer, OfflinePlayer> list = new HashMap <>();
-			// OfflinePlayer p;
-			clients.forEach((i, s) -> list.put(i, getOfflinePlayer(UUID.fromString(s))));
+			clients.forEach((n, o) ->
+					                Common.tell(sender, pre + format
+							                .replaceAll("#", n.toString())
+							                .replaceAll("%player%", getOfflinePlayer(UUID.fromString(o)).getName())));
 			
-			list.forEach(((i, p) ->
-					Common.tell(sender, pre + format.
-							replaceAll("#", i.toString()).replaceAll("%player%", p.getName())))
-			);
 		}
 		
 	}
