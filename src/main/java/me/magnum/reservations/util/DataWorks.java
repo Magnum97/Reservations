@@ -1,5 +1,7 @@
 package me.magnum.reservations.util;
 
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.gson.Gson;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static me.magnum.reservations.util.Config.*;
@@ -25,15 +28,17 @@ public class DataWorks {
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
 	
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
-	public static Map <Integer, String> clients = new TreeMap <>();
 	public static List <Player> onlineVets = new ArrayList <>();
-	private static Map <LocalDateTime, Appointment> appointmentMap = new TreeMap <>();
+	public static Map <Integer, String> walkIns = new TreeMap <>();
+	public static HashMap <String, Appointment> userSorted = new HashMap <>();
+	public static ListMultimap <LocalDateTime, Appointment> timeSorted = MultimapBuilder.treeKeys().arrayListValues().build();
+	
 	
 	// public static List <HashMap <OfflinePlayer, Appointment>> appt = new LinkedList <>();
-	// public static List <Appointment> appointmentMap = new LinkedList <>();
+	// public static List <Appointment> timeSorted = new LinkedList <>();
 	
 	private static int next;
-	Gson gson = new Gson();
+	private Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
 	
 	public DataWorks () {
 	}
@@ -44,7 +49,7 @@ public class DataWorks {
 		try {
 			Common.log("Loading waiting list...");
 			for (String key : data.getConfigurationSection("waiting-list").getKeys(false)) {
-				clients.put(Integer.parseInt(key), data.getString("waiting-list." + key));
+				walkIns.put(Integer.parseInt(key), data.getString("waiting-list." + key));
 			}
 		}
 		catch (NullPointerException e) {
@@ -62,13 +67,32 @@ public class DataWorks {
 		return null;
 	}
 	
+	public void saveAll () {
+		String jsonAppt = "";
+		try {
+			if (!aptBook.exists()) {   // checks whether the file is Exist or not
+				aptBook.createNewFile();   // here if file not exist new file created
+			}
+			
+			FileWriter fw = new FileWriter(aptBook.getAbsoluteFile(), false); // creating fileWriter object with the file
+			BufferedWriter bw = new BufferedWriter(fw); // creating bufferWriter which is used to write the content into the file
+			bw.write(jsonAppt);
+			for (Appointment appointment : timeSorted.values()) {
+				jsonAppt = gson.toJson(appointment);
+				bw.append(jsonAppt); // write method is used to write the given content into the file
+				Common.log(pre + "Appointment created");
+			}
+			bw.close(); // Closes the stream, flushing it first. Once the stream has been closed, further write() or flush() invocations will cause an IOException to be thrown. Closing a previously closed stream has no effect.
+		}
+		catch (IOException e) { // if any exception occurs it will catch
+			e.printStackTrace();
+		}
+	}
+	
 	private boolean saveApt (String jsonAppt) {
-		try {   // this is for monitoring runtime Exception within the block
-			BufferedWriter writer = new BufferedWriter(new FileWriter(aptBook));
-			
-			String content = "This is the content to write into file"; // content to write into the file
-			
-			writer.write(jsonAppt);
+		try {
+			// BufferedWriter writer = new BufferedWriter(new FileWriter(aptBook));
+			// writer.append(jsonAppt);
 			
 			// File file = new File("C:/Users/Geroge/SkyDrive/Documents/inputFile.txt"); // here file not created here
 			
@@ -81,8 +105,7 @@ public class DataWorks {
 			BufferedWriter bw = new BufferedWriter(fw); // creating bufferWriter which is used to write the content into the file
 			bw.write(jsonAppt); // write method is used to write the given content into the file
 			bw.close(); // Closes the stream, flushing it first. Once the stream has been closed, further write() or flush() invocations will cause an IOException to be thrown. Closing a previously closed stream has no effect.
-			
-			System.out.println("Done");
+			Common.log(pre + "Appointment created");
 			
 		}
 		catch (IOException e) { // if any exception occurs it will catch
@@ -107,26 +130,40 @@ public class DataWorks {
 		}
 		LocalDateTime ldt = getTime(time);
 		Appointment appointment = new Appointment(ldt, offlinePlayer.getUniqueId().toString(), reason);
-		result = pre + "Appointment created";
+		result = "Appointment created";
 		String jsonString = gson.toJson(appointment);
-		System.out.println(jsonString); //todo remove debug msg
 		saveApt(jsonString);
 		
-		appointmentMap.put(ldt, appointment);
+		timeSorted.put(ldt, appointment);
 		
 		return result;
 	}
 	
 	public void listAppointments (CommandSender sender) {
 		if (!CheckSender.isCommand(sender)) {
-			if (appointmentMap.isEmpty()) {
-				Common.tell(sender, pre + "No appts");
+			if (timeSorted.isEmpty()) {
+				Common.tell(sender, pre + "No appts"); // todo verbose
 			}
 		}
-		appointmentMap.forEach((t, i) ->
-				                       Common.tell(sender, pre + t.toString() + " " +
-						                       getOfflinePlayer(UUID.fromString(i.getPlayerId())).getName()));
+		String pattern = "E @ HH:mm";
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+		timeSorted.forEach((t, i) -> Common.tell(sender, pre + dtf.format(t) + " " +
+				getOfflinePlayer(UUID.fromString(i.getPlayerId())).getName()));
 	}
+	
+	/*@SuppressWarnings("deprecation")
+	public void clearApt (String player) {
+		String name;
+		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
+		String uuid = offlinePlayer.getUniqueId().toString();
+		Set set = timeSorted.();
+		Iterator it = set.iterator();
+		while(it.hasNext()){
+			Map.Entry me = (Map.Entry) it.next();
+			if (me.getValue().getPlayerId())
+	}
+	
+}*/
 	
 	@SuppressWarnings("deprecation")
 	public String make (String player) {
@@ -135,13 +172,13 @@ public class DataWorks {
 		OfflinePlayer p = getOfflinePlayer(player);
 		if (p.hasPlayedBefore()) {
 			idString = p.getUniqueId().toString();
-			clients.put(next, idString);
+			walkIns.put(next, idString);
 			next++;
 			if (next > 99) {
 				next = 1;
 			}
 			data.set("next-appointment", next);
-			data.write("waiting-list", clients);
+			data.write("waiting-list", walkIns);
 			data.saveConfig();
 			result = confirmAppt.replaceAll("%player%", p.getName());
 			return result;
@@ -167,17 +204,18 @@ public class DataWorks {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public boolean check (String player) {
+	public boolean check (String player, Map list) {
 		OfflinePlayer p = getOfflinePlayer(player);
-		return clients.containsValue(p.getUniqueId().toString());
+		return (list.containsKey(p.getUniqueId()) || list.containsValue(p.getUniqueId()));
+		// return list.containsValue(p.getUniqueId().toString());
 	}
 	
 	public void view (CommandSender sender) {
 		if (!CheckSender.isCommand(sender)) {
-			if (clients.size() < 1) {
+			if (walkIns.size() < 1) {
 				Common.tell(sender, pre + Config.noAppt);
 			}
-			clients.forEach((n, o) ->
+			walkIns.forEach((n, o) ->
 					                Common.tell(sender, pre + format
 							                .replaceAll("#", n.toString())
 							                .replaceAll("%player%", getOfflinePlayer(UUID.fromString(o)).getName())));
@@ -188,10 +226,10 @@ public class DataWorks {
 	
 	public String clear (int key) {
 		String result;
-		if (clients.containsKey(key)) {
-			OfflinePlayer offlinePlayer = getOfflinePlayer(UUID.fromString(clients.get(key)));
-			clients.remove(key);
-			data.write("waiting-list", clients);
+		if (walkIns.containsKey(key)) {
+			OfflinePlayer offlinePlayer = getOfflinePlayer(UUID.fromString(walkIns.get(key)));
+			walkIns.remove(key);
+			data.write("waiting-list", walkIns);
 			result = offlinePlayer.getName() + " has been removed from the queue.";
 			return result;
 		}
@@ -204,8 +242,8 @@ public class DataWorks {
 	}
 	
 	public void wipe (CommandSender sender) {
-		if (clients.size() > 1) {
-			HashMap <Integer, String> res = new HashMap <Integer, String>(clients);
+		if (walkIns.size() > 1) {
+			HashMap <Integer, String> res = new HashMap <Integer, String>(walkIns);
 			for (int i : res.keySet()) {
 				Common.tell(sender, clear(i));
 			}
@@ -284,6 +322,9 @@ public class DataWorks {
 	}
 	
 	public void closeData () { //todo Save Appointments to config file
-		clients.clear();
+		saveAll();
+		walkIns.clear();
+		timeSorted.clear();
+		onlineVets.clear();
 	}
 }

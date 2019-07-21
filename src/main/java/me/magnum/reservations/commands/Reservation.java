@@ -14,6 +14,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import static me.magnum.reservations.util.Config.pre;
+import static me.magnum.reservations.util.DataWorks.userSorted;
+import static me.magnum.reservations.util.DataWorks.walkIns;
 
 @SuppressWarnings("deprecation")
 @CommandAlias("%command")
@@ -27,16 +29,16 @@ public class Reservation extends BaseCommand {
 	@Description("Make a reservation and get a number")
 	@CommandCompletion("@players")
 	@CommandPermission("reservations.make.self")
-	public void onMake (CommandSender sender, @Optional String player, @Default("") String time, @Default("") String reason) {
+	public void onMake (CommandSender sender, @Default("") String player, @Default("") String time, @Default("") String reason) {
 		if (CheckSender.isCommand(sender)) {
 			return;
 		}
 		DataWorks dw = new DataWorks();
 		String result;
-		if (player == null) {
+		if (player.equals("")) {
 			if ((CheckSender.isConsole(sender))) {
 				Common.tell(sender, pre + "I'm sorry console, you can't make an appointment for yourself.");
-				getCurrentCommandManager().generateCommandHelp("make");
+				// Common.tell(sender,  help .getCurrentCommandManager().generateCommandHelp("make");
 				return;
 			}
 			player = sender.getName();
@@ -57,13 +59,19 @@ public class Reservation extends BaseCommand {
 				return;
 			}
 			else {
-				result = dw.makeAppt(player, time, reason);
-				
-				return;
+				if (dw.check(player, userSorted)) {
+					Common.tell(sender, pre + Config.hasAppt);
+					return;
+				}
+				else {
+					result = dw.makeAppt(player, time, reason);
+					Common.tell(sender, pre + result);
+					return;
+				}
 			}
 		}
 		
-		if (dw.check(player)) {
+		if (dw.check(player, walkIns)) {
 			Common.tell(sender, pre + Config.hasAppt);
 			return;
 		}
