@@ -2,7 +2,9 @@ package me.magnum.reservations.util;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import lombok.Getter;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
@@ -11,10 +13,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -26,12 +26,14 @@ public class DataWorks {
 	
 	private static Reservations plugin = Reservations.getPlugin();
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
-	
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
 	public static List <Player> onlineVets = new ArrayList <>();
 	public static Map <Integer, String> walkIns = new TreeMap <>();
-	public static HashMap <String, Appointment> userSorted = new HashMap <>();
+	
+	@Getter
+	public static List <Appointment> appointmentList = new ArrayList <>();
 	public static ListMultimap <LocalDateTime, Appointment> timeSorted = MultimapBuilder.treeKeys().arrayListValues().build();
+	public static HashMap <String, Appointment> userSorted = new HashMap <>();
 	
 	
 	// public static List <HashMap <OfflinePlayer, Appointment>> appt = new LinkedList <>();
@@ -46,16 +48,34 @@ public class DataWorks {
 	void onLoad () {
 		Common.log("Getting next appointment");
 		next = data.getInt("next-appointment", 1);
+		Common.log("Loading waiting list...");
 		try {
-			Common.log("Loading waiting list...");
 			for (String key : data.getConfigurationSection("waiting-list").getKeys(false)) {
 				walkIns.put(Integer.parseInt(key), data.getString("waiting-list." + key));
 			}
+			
 		}
 		catch (NullPointerException e) {
 			Common.log("Could not load waiting list.");
 			e.printStackTrace();
 		}
+		Common.log("Loading Appointments..");
+		try {
+			Reader reader = new FileReader(aptBook);
+			Type targetType = new TypeToken <ArrayList <Appointment>>() {
+			}.getType();
+			Collection <Appointment> newCol = gson.fromJson(reader, targetType);
+			if ((newCol != null) && (!newCol.isEmpty())) {
+				appointmentList.addAll(newCol);
+				appointmentList.forEach(a -> timeSorted.put(a.getTime(), a));
+				appointmentList.forEach(a -> userSorted.put(a.getPlayerId(), a));
+			}
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Common.log("Could not load appointments.");
+		}
+		Common.log("Appt loaded");
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -77,8 +97,9 @@ public class DataWorks {
 			FileWriter fw = new FileWriter(aptBook.getAbsoluteFile(), false); // creating fileWriter object with the file
 			BufferedWriter bw = new BufferedWriter(fw); // creating bufferWriter which is used to write the content into the file
 			bw.write(jsonAppt);
-			for (Appointment appointment : timeSorted.values()) {
-				jsonAppt = gson.toJson(appointment);
+			for (LocalDateTime ldt : timeSorted.keySet()) {
+				timeSorted.get(ldt);
+				jsonAppt = gson.toJson(timeSorted.get(ldt));
 				bw.append(jsonAppt); // write method is used to write the given content into the file
 				Common.log(pre + "Appointment created");
 			}
@@ -133,22 +154,43 @@ public class DataWorks {
 		result = "Appointment created";
 		String jsonString = gson.toJson(appointment);
 		saveApt(jsonString);
-		
-		timeSorted.put(ldt, appointment);
-		
+		addAppointment(appointment);
 		return result;
 	}
 	
+	private void addAppointment (Appointment appointment) {
+		appointmentList.add(appointment);
+		userSorted.put(appointment.getPlayerId(), appointment);
+		timeSorted.put(appointment.getTime(), appointment);
+	}
+	
+	private void removeAppt (Appointment appointment) {
+		if (appointment.isCanceled()) {
+			appointmentList.remove(appointment);
+			timeSorted.remove(appointment.getTime(), appointment);
+			userSorted.remove(appointment.getPlayerId());
+		}
+	}
+	
 	public void listAppointments (CommandSender sender) {
-		if (!CheckSender.isCommand(sender)) {
-			if (timeSorted.isEmpty()) {
+		if (CheckSender.isCommand(sender)) {
+			return;
+		}
+		else {
+			if (appointmentList.isEmpty()) {
 				Common.tell(sender, pre + "No appts"); // todo verbose
+				return;
+			}
+			Set <Appointment> set = new HashSet <>();
+			
+			timeSorted.forEach((t, a) -> set.addAll(timeSorted.get(t)));
+			String pattern = "E @ HH:mm";
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+			
+			for (Appointment a : timeSorted.values()) {
+				Common.tell(sender, a.getTime().format(dtf) + " " + getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName());
 			}
 		}
-		String pattern = "E @ HH:mm";
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
-		timeSorted.forEach((t, i) -> Common.tell(sender, pre + dtf.format(t) + " " +
-				getOfflinePlayer(UUID.fromString(i.getPlayerId())).getName()));
 	}
 	
 	/*@SuppressWarnings("deprecation")
@@ -204,10 +246,16 @@ public class DataWorks {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public boolean check (String player, Map list) {
+	public boolean checkNumber (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
-		return (list.containsKey(p.getUniqueId()) || list.containsValue(p.getUniqueId()));
-		// return list.containsValue(p.getUniqueId().toString());
+		String playerId = p.getUniqueId().toString();
+		return walkIns.containsValue(playerId);
+	}
+	@SuppressWarnings("deprecation")
+	public boolean checkApt (String player) {
+		OfflinePlayer p = getOfflinePlayer(player);
+		String playerId = p.getUniqueId().toString();
+		return userSorted.containsKey(playerId);
 	}
 	
 	public void view (CommandSender sender) {

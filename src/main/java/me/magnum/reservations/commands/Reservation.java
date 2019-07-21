@@ -59,7 +59,7 @@ public class Reservation extends BaseCommand {
 				return;
 			}
 			else {
-				if (dw.check(player, userSorted)) {
+				if (dw.checkApt(player)) {
 					Common.tell(sender, pre + Config.hasAppt);
 					return;
 				}
@@ -71,7 +71,7 @@ public class Reservation extends BaseCommand {
 			}
 		}
 		
-		if (dw.check(player, walkIns)) {
+		if (dw.checkNumber(player)) {
 			Common.tell(sender, pre + Config.hasAppt);
 			return;
 		}
