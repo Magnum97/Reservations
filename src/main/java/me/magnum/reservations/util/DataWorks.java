@@ -3,11 +3,16 @@ package me.magnum.reservations.util;
 import com.google.gson.Gson;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
+import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.*;
 import java.util.*;
 
@@ -16,16 +21,22 @@ import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
 	
-	public DataWorks () {
-	}
-	
+	private static Reservations plugin = Reservations.getPlugin();
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
+	
+	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
 	public static Map <Integer, String> clients = new TreeMap <>();
-	private static Map <LocalDateTime, String> appointmentMap = new TreeMap <>();
+	public static List <Player> onlineVets = new ArrayList <>();
+	private static Map <LocalDateTime, Appointment> appointmentMap = new TreeMap <>();
+	
 	// public static List <HashMap <OfflinePlayer, Appointment>> appt = new LinkedList <>();
 	// public static List <Appointment> appointmentMap = new LinkedList <>();
-	public static List <Player> onlineVets = new ArrayList <>();
+	
 	private static int next;
+	Gson gson = new Gson();
+	
+	public DataWorks () {
+	}
 	
 	void onLoad () {
 		Common.log("Getting next appointment");
@@ -51,21 +62,58 @@ public class DataWorks {
 		return null;
 	}
 	
+	private boolean saveApt (String jsonAppt) {
+		try {   // this is for monitoring runtime Exception within the block
+			BufferedWriter writer = new BufferedWriter(new FileWriter(aptBook));
+			
+			String content = "This is the content to write into file"; // content to write into the file
+			
+			writer.write(jsonAppt);
+			
+			// File file = new File("C:/Users/Geroge/SkyDrive/Documents/inputFile.txt"); // here file not created here
+			
+			// if file doesnt exists, then create it
+			if (!aptBook.exists()) {   // checks whether the file is Exist or not
+				aptBook.createNewFile();   // here if file not exist new file created
+			}
+			
+			FileWriter fw = new FileWriter(aptBook.getAbsoluteFile(), true); // creating fileWriter object with the file
+			BufferedWriter bw = new BufferedWriter(fw); // creating bufferWriter which is used to write the content into the file
+			bw.write(jsonAppt); // write method is used to write the given content into the file
+			bw.close(); // Closes the stream, flushing it first. Once the stream has been closed, further write() or flush() invocations will cause an IOException to be thrown. Closing a previously closed stream has no effect.
+			
+			System.out.println("Done");
+			
+		}
+		catch (IOException e) { // if any exception occurs it will catch
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public String makeAppt (String player, String time) {
+		String reason = "";
+		return makeAppt(player, time, reason);
+	}
+	
+	public String makeAppt (String player, String time, String reason) {
 		String result;
 		OfflinePlayer offlinePlayer = getPlayer(player);
 		if ((offlinePlayer == null) || !offlinePlayer.hasPlayedBefore()) {
-			result = player + " has never logged in to this server.";
+			result = player + " has never logged in to this server."; //todo move to config
 			return result;
 		}
 		LocalDateTime ldt = getTime(time);
-		Appointment appointment = new Appointment(offlinePlayer, ldt);
+		Appointment appointment = new Appointment(ldt, offlinePlayer.getUniqueId().toString(), reason);
 		result = pre + "Appointment created";
-		Gson gson = new Gson();
-		String json = gson.toJson(appointment);
-		data.write("appointments", json); // todo allow appointments for same time? time range?
-		data.saveConfig();
-		appointmentMap.put(ldt, offlinePlayer.getUniqueId().toString());
+		String jsonString = gson.toJson(appointment);
+		System.out.println(jsonString); //todo remove debug msg
+		saveApt(jsonString);
+		
+		appointmentMap.put(ldt, appointment);
+		
 		return result;
 	}
 	
@@ -75,8 +123,9 @@ public class DataWorks {
 				Common.tell(sender, pre + "No appts");
 			}
 		}
-		appointmentMap.forEach((t, p) ->
-				                       Common.tell(sender, pre + t.toString() + " " + getOfflinePlayer(UUID.fromString(p))));
+		appointmentMap.forEach((t, i) ->
+				                       Common.tell(sender, pre + t.toString() + " " +
+						                       getOfflinePlayer(UUID.fromString(i.getPlayerId())).getName()));
 	}
 	
 	@SuppressWarnings("deprecation")

@@ -28,9 +28,17 @@ public class Reservation extends BaseCommand {
 	@CommandCompletion("@players")
 	@CommandPermission("reservations.make.self")
 	public void onMake (CommandSender sender, @Optional String player, @Default("") String time, @Default("") String reason) {
+		if (CheckSender.isCommand(sender)) {
+			return;
+		}
 		DataWorks dw = new DataWorks();
 		String result;
 		if (player == null) {
+			if ((CheckSender.isConsole(sender))) {
+				Common.tell(sender, pre + "I'm sorry console, you can't make an appointment for yourself.");
+				getCurrentCommandManager().generateCommandHelp("make");
+				return;
+			}
 			player = sender.getName();
 		}
 		if (sender instanceof Player) {
@@ -49,7 +57,8 @@ public class Reservation extends BaseCommand {
 				return;
 			}
 			else {
-				dw.makeAppt(player, time);
+				result = dw.makeAppt(player, time, reason);
+				
 				return;
 			}
 		}

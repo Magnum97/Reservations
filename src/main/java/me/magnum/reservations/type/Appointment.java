@@ -1,25 +1,29 @@
 package me.magnum.reservations.type;
 
 import lombok.Getter;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Appointment {
+@Getter
+@Setter
+public class Appointment implements Serializable {
 	
-	@Getter String playerId;
-	@Getter OfflinePlayer player;
-	@Getter LocalDateTime time;
-	@Getter String reason;
+	LocalDateTime time;
+	String reason;
+	String playerId; // todo remove if not used
 	
-	public Appointment (OfflinePlayer player, LocalDateTime time) {
-		this.player = player;
-		this.time = time;
+	public Appointment () {
 	}
 	
-	public Appointment (Player player, LocalDateTime time, String reason) {
-		this.player = player;
+	public Appointment (LocalDateTime time, String playerId) {
+		this.time = time;
+		this.playerId = playerId;
+	}
+
+	public Appointment (LocalDateTime time, String playerId, String reason) {
+		this.playerId = playerId;
 		this.time = time;
 		this.reason = reason;
 	}
