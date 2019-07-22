@@ -87,7 +87,7 @@ public class DataWorks {
 		return null;
 	}
 	
-	public void saveAll () {
+	private void saveAll () {
 		String jsonAppt = "";
 		try {
 			if (!aptBook.exists()) {   // checks whether the file is Exist or not
@@ -110,7 +110,7 @@ public class DataWorks {
 		}
 	}
 	
-	private boolean saveApt (String jsonAppt) {
+	private void saveApt (String jsonAppt) {
 		try {
 			// BufferedWriter writer = new BufferedWriter(new FileWriter(aptBook));
 			// writer.append(jsonAppt);
@@ -131,10 +131,8 @@ public class DataWorks {
 		}
 		catch (IOException e) { // if any exception occurs it will catch
 			e.printStackTrace();
-			return false;
 		}
 		
-		return true;
 	}
 	
 	public String makeAppt (String player, String time) {
@@ -294,7 +292,7 @@ public class DataWorks {
 	
 	public void wipe (CommandSender sender) {
 		if (walkIns.size() > 1) {
-			HashMap <Integer, String> res = new HashMap <Integer, String>(walkIns);
+			HashMap <Integer, String> res = new HashMap <>(walkIns);
 			for (int i : res.keySet()) {
 				Common.tell(sender, clear(i));
 			}
@@ -339,36 +337,37 @@ public class DataWorks {
 		
 		LocalDateTime lastMidnight = LocalDateTime.of(today, midnight);
 		LocalDateTime lt = LocalDateTime.now();
-		System.out.println(lt);
+		// System.out.println(lt);
 		// System.out.println("lt =" + lt.format(formata));
 		// System.out.println("lt =" + lt.format(formatb));
 		
 		String stringHours = time.split("[:]")[0];
-		System.out.println(stringHours);
-		int hours = Integer.valueOf(time.split("[:]")[0]);
-		if (time.contains("p")) {
+		// System.out.println(stringHours);
+		int hours = Integer.valueOf(stringHours); //todo check if 24h AND has a/p
+		if (time.matches(".{4,5}[p]")) { // todo fix detection os 12:00p as midnight
 			hours += 12;
-			System.out.println(hours);
-			System.out.println(time);
+			// System.out.println(hours);
+			// System.out.println(time);
 			time = time.split("[:]")[1].split("[p]")[0];
-			System.out.println(time);
+			// System.out.println(time);
 		}
 		else {
 			time = time.split("[:]")[1];
 		}
-		System.out.println(time);
+		time = time.replaceFirst("\\d\\d([a|p])", "");
+		// System.out.println(time);
 		int minutes = Integer.valueOf(time);
 		
 		LocalDateTime tt = lastMidnight.plusHours(hours).plusMinutes(minutes);
-		System.out.println("tt =" + tt);
+		// System.out.println("tt =" + tt);
 		
 		if (tt.isBefore(lt)) {
 			tt = tt.plusDays(1);
-			System.out.println("New tt = " + tt);
+			// System.out.println("New tt = " + tt);
 		}
-		else {
-			System.out.println("Time is already in the future.");
-		}
+		// else {
+			// System.out.println("Time is already in the future.");
+		// }
 		return tt;
 	}
 	
