@@ -50,7 +50,7 @@ public class Reservation extends BaseCommand {
 		}
 		if (time.length() > 0) {
 			if (!time.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]")) {
-				getCurrentCommandManager().generateCommandHelp("make");
+				// getCurrentCommandManager().generateCommandHelp("make");
 				Common.tell(sender, pre + time + "&e is not a valid time."
 						, pre + "&bPlease format time:&e HH:mm &bYou can use 24 hour time or 12 hour with &ea&7/&ep&b"
 						, pre + "&bFor example &f15:30 &b| &f3:30p &bor &f03:30&b | &f3:30a");
