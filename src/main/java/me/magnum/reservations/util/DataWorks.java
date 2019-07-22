@@ -110,7 +110,7 @@ public class DataWorks {
 		}
 	}
 	
-	private boolean saveApt (String jsonAppt) {
+	private void saveApt (String jsonAppt) {
 		try {
 			// BufferedWriter writer = new BufferedWriter(new FileWriter(aptBook));
 			// writer.append(jsonAppt);
@@ -131,10 +131,8 @@ public class DataWorks {
 		}
 		catch (IOException e) { // if any exception occurs it will catch
 			e.printStackTrace();
-			return false;
 		}
 		
-		return true;
 	}
 	
 	public String makeAppt (String player, String time) {
@@ -294,7 +292,7 @@ public class DataWorks {
 	
 	public void wipe (CommandSender sender) {
 		if (walkIns.size() > 1) {
-			HashMap <Integer, String> res = new HashMap <Integer, String>(walkIns);
+			HashMap <Integer, String> res = new HashMap <>(walkIns);
 			for (int i : res.keySet()) {
 				Common.tell(sender, clear(i));
 			}

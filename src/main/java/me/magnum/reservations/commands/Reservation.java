@@ -14,8 +14,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import static me.magnum.reservations.util.Config.pre;
-import static me.magnum.reservations.util.DataWorks.userSorted;
-import static me.magnum.reservations.util.DataWorks.walkIns;
 
 @SuppressWarnings("deprecation")
 @CommandAlias("%command")
