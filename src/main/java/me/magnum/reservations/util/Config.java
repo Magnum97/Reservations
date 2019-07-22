@@ -2,8 +2,8 @@ package me.magnum.reservations.util;
 
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
-import me.magnum.reservations.commands.Reservation;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class Config extends SimpleConfig {
 	
 	public static int next;
@@ -16,6 +16,8 @@ public class Config extends SimpleConfig {
 	public static String noMakeOther;
 	public static String hasAppt;
 	public static String format;
+	public static String waiting;
+	public static int remindDelay;
 	
 	private Config (String fileName) {
 		super(fileName);
@@ -44,6 +46,8 @@ public class Config extends SimpleConfig {
 		noMakeOther = getString("messages.no-permission");
 		hasAppt = getString("messages.has-appt");
 		format = getString("list-format");
+		waiting = getString("messages.waiting");
+		remindDelay = getInt("reminder-delay");
 	}
 	
 	public static void init () {

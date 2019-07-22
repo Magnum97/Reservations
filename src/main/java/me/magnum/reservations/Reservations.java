@@ -3,14 +3,12 @@ package me.magnum.reservations;
 import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.CommandReplacements;
 import lombok.Getter;
+import me.magnum.lib.Common;
 import me.magnum.reservations.commands.Reservation;
-import me.magnum.reservations.util.Config;
-import me.magnum.reservations.util.DataWorks;
-import me.magnum.reservations.util.SimpleConfig;
+import me.magnum.reservations.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Logger;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import static me.magnum.reservations.util.Config.command;
 
@@ -20,22 +18,28 @@ public final class Reservations extends JavaPlugin {
 	public static Reservations plugin;
 	@Getter
 	public static SimpleConfig cfg;
-	private BukkitCommandManager commandManager;
+	@Getter
+	public BukkitCommandManager commandManager;
 	private CommandReplacements commands;
-	public static Logger log;
+	private BukkitScheduler bs = Bukkit.getScheduler();
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable () {
 		plugin = this;
-		log = Bukkit.getLogger();
+		ReminderTask reminder = new ReminderTask();
+		Common.setInstance(plugin);
+		Common.log("Loading Config...");
 		cfg = new SimpleConfig("config.yml");
-		log.info("Loading Config...");
 		Config.init();
-		log.info("Initializing command manager...");
+		Common.log("Initializing command manager...");
 		commandManager = new BukkitCommandManager(this);
 		commands = commandManager.getCommandReplacements();
 		registerCommands();
-		log.info("Registering commands");
+		Common.log("Registering commands");
+		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
+		bs.runTaskLater(plugin, reminder, 20 * 10);
+		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * Config.remindDelay);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -48,6 +52,8 @@ public final class Reservations extends JavaPlugin {
 	
 	@Override
 	public void onDisable () {
-		DataWorks.clients.clear();
+		DataWorks dw = new DataWorks();
+		bs.cancelAllTasks();
+		dw.closeData();
 	}
 }

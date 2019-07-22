@@ -1,8 +1,9 @@
 // Configure Auto Relocation
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import org.apache.tools.ant.filters.ReplaceTokens
 
 // We use this to replace version in plugin.yml
-import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
@@ -11,7 +12,7 @@ plugins {
 }
 
 group = 'me.magnum.reservations'
-version = '1.1.1'
+version = '1.2.0'
 description = 'Simple ticket system'
 sourceCompatibility = '1.8'
 archivesBaseName = 'Reservations' // Put your artifactId here
@@ -43,6 +44,11 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
+//    implementation 'com.googlecode.json-simple:1.1.1'
+//    implementation 'com.fasterxml.jackson.jr:jackson-jr-objects:2.9.0'
+    implementation 'com.google.guava:guava:28.0-jre'
+
+    implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
     shadow 'fr.minuskube.inv:smart-invs:1.2.6'
