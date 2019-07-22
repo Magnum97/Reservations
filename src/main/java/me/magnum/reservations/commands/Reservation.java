@@ -49,7 +49,7 @@ public class Reservation extends BaseCommand {
 			((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
 		}
 		if (time.length() > 0) {
-			if (!time.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]")) {
+			if (!time.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](\\b|[a|p])")) {
 				// getCurrentCommandManager().generateCommandHelp("make");
 				Common.tell(sender, pre + time + "&e is not a valid time."
 						, pre + "&bPlease format time:&e HH:mm &bYou can use 24 hour time or 12 hour with &ea&7/&ep&b"
