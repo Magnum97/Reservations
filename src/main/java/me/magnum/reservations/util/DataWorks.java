@@ -174,7 +174,6 @@ public class DataWorks {
 	
 	public void listAppointments (CommandSender sender) {
 		if (CheckSender.isCommand(sender)) {
-			return;
 		}
 		else {
 			if (appointmentList.isEmpty()) {
@@ -188,7 +187,10 @@ public class DataWorks {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 			
 			for (Appointment a : timeSorted.values()) {
-				Common.tell(sender, a.getTime().format(dtf) + " " + getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName());
+				if (!(a.getTime().isBefore(LocalDateTime.now()) && !(a.isCanceled()))) {
+					Common.tell(sender, pre +
+							a.getTime().format(dtf) + " " + getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName());
+				}
 			}
 		}
 	}
@@ -251,6 +253,7 @@ public class DataWorks {
 		String playerId = p.getUniqueId().toString();
 		return walkIns.containsValue(playerId);
 	}
+	
 	@SuppressWarnings("deprecation")
 	public boolean checkApt (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
