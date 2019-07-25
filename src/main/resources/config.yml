@@ -18,4 +18,4 @@ messages:
   waiting: "&6There are players waiting for a vet"
   canceled: "The appointment for %player% had been canceled."
   update-apt: "Updating your appointment time for %player%"
-  no-appointments: "No apointments found for %player%"
+  no-appointments: "No appointments found for %player%"
