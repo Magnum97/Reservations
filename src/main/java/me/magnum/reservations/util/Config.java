@@ -8,15 +8,19 @@ public class Config extends SimpleConfig {
 	
 	public static int next;
 	public static String pre;
-	public static String confirmAppt;
+	static String confirmAppt;
 	public static String command;
 	public static String playerConfirm;
 	public static String logConfirm;
-	public static String noAppt;
+	static String noAppt;
 	public static String noMakeOther;
+	public static String noCancelOther;
 	public static String hasAppt;
-	public static String format;
-	public static String waiting;
+	static String format;
+	static String waiting;
+	public static String canceled;
+	public static String hasNoApt;
+	public static String aptUpdate;
 	public static int remindDelay;
 	
 	private Config (String fileName) {
@@ -37,7 +41,8 @@ public class Config extends SimpleConfig {
 		// Set stuff here
 		DataWorks dw = new DataWorks();
 		dw.onLoad();
-		pre = getString("plugin-prefix").replace("&", "§");
+		remindDelay = getInt("reminder-delay");
+		pre = getString("plugin-prefix");
 		command = getString("baseCommand");
 		confirmAppt = getString("messages.appointment-confirm");
 		playerConfirm = getString("messages.player-confirm");
@@ -47,7 +52,10 @@ public class Config extends SimpleConfig {
 		hasAppt = getString("messages.has-appt");
 		format = getString("list-format");
 		waiting = getString("messages.waiting");
-		remindDelay = getInt("reminder-delay");
+		noCancelOther = getString("messages.no-cancel-other");
+		canceled = getString("messages.canceled");
+		aptUpdate = getString("messages.update-apt");
+		hasNoApt = getString("messages.no-appointments");
 	}
 	
 	public static void init () {

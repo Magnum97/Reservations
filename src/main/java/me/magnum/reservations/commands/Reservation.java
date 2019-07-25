@@ -13,7 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import static me.magnum.reservations.util.Config.pre;
+import static me.magnum.reservations.util.Config.*;
 
 @SuppressWarnings("deprecation")
 @CommandAlias("%command")
@@ -27,26 +27,27 @@ public class Reservation extends BaseCommand {
 	@Description("Make a reservation and get a number")
 	@CommandCompletion("@players")
 	@CommandPermission("reservations.make.self")
-	public void onMake (CommandSender sender, @Default("") String player, @Default("") String time, @Default("") String reason) {
+	public void onMake (CommandSender sender, @Default("") String player, @Default("") String time, @Default("") String reason) throws IllegalAccessException {
 		if (CheckSender.isCommand(sender)) {
 			return;
 		}
-		DataWorks dw = new DataWorks();
-		String result;
 		if (player.equals("")) {
 			if ((CheckSender.isConsole(sender))) {
 				Common.tell(sender, pre + "I'm sorry console, you can't make an appointment for yourself.");
 				// Common.tell(sender,  help .getCurrentCommandManager().generateCommandHelp("make");
 				return;
 			}
-			player = sender.getName();
+			else {
+				player = sender.getName();
+			}
 		}
+		DataWorks dw = new DataWorks();
+		String result;
 		if (sender instanceof Player) {
 			if ((!(sender.hasPermission("reservations.make.others"))) && (!(sender.getName().equalsIgnoreCase(player)))) {
 				Common.tell(sender, pre + Config.noMakeOther);
 				return;
 			}
-			((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
 		}
 		if (time.length() > 0) {
 			if (!time.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](\\b|[a|p])")) {
@@ -57,18 +58,18 @@ public class Reservation extends BaseCommand {
 				return;
 			}
 			else {
-				if (dw.checkApt(player)) {
-					Common.tell(sender, pre + Config.hasAppt);
+				if (dw.hasApt(player)) {
+					Common.tell(sender, pre + aptUpdate.replace("%player%", player));
+					dw.updateApt(dw.getApt(player), time, reason);
 					return;
 				}
-				else {
-					result = dw.makeAppt(player, time, reason);
-					Common.tell(sender, pre + result);
-					return;
-				}
+				result = dw.makeAppt(player, time, reason);
+				Common.tell(sender, pre + result);
 			}
 		}
-		
+		if (sender instanceof Player) {
+			((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
+		}
 		if (dw.checkNumber(player)) {
 			Common.tell(sender, pre + Config.hasAppt);
 			return;
@@ -119,6 +120,40 @@ public class Reservation extends BaseCommand {
 		DataWorks dw = new DataWorks();
 		String result = dw.clear(key);
 		Common.tell(sender, pre + result);
+	}
+	
+	@Subcommand("cancel")
+	@Description("Cancel an appointment")
+	@CommandPermission("reservations.cancel.self")
+	public void onCancel (CommandSender sender, @Default("") String player) throws IllegalAccessException {
+		if (CheckSender.isCommand(sender)) {
+			return;
+		}
+		DataWorks dw = new DataWorks();
+		String result;
+		if (player.equals("")) {
+			if (CheckSender.isConsole(sender)) {
+				Common.tell(sender, pre + "There are no appointments for console.");
+				return;
+			}
+			else {
+				player = sender.getName();
+			}
+		}
+		if (CheckSender.isPlayer(sender)) {
+			if ((!(sender.hasPermission("reservations.make.others"))) && (!(sender.getName().equalsIgnoreCase(player)))) {
+				Common.tell(sender, pre + Config.noCancelOther);
+				return;
+			}
+		}
+		
+		if (dw.hasApt(player)) {
+			dw.cancelApt(dw.getApt(player));
+			Common.tell(sender, pre + canceled.replace("%player%", player));
+		}
+		else {
+			Common.tell(sender, pre + hasNoApt.replace("%player%", player));
+		}
 	}
 	
 	@Subcommand("wipe")
