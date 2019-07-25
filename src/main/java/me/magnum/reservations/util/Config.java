@@ -8,16 +8,16 @@ public class Config extends SimpleConfig {
 	
 	public static int next;
 	public static String pre;
-	public static String confirmAppt;
+	static String confirmAppt;
 	public static String command;
 	public static String playerConfirm;
 	public static String logConfirm;
-	public static String noAppt;
+	static String noAppt;
 	public static String noMakeOther;
 	public static String noCancelOther;
 	public static String hasAppt;
-	public static String format;
-	public static String waiting;
+	static String format;
+	static String waiting;
 	public static String canceled;
 	public static String hasNoApt;
 	public static String aptUpdate;
@@ -55,6 +55,7 @@ public class Config extends SimpleConfig {
 		noCancelOther = getString("messages.no-cancel-other");
 		canceled = getString("messages.canceled");
 		aptUpdate = getString("messages.update-apt");
+		hasNoApt = getString("messages.no-appointments");
 	}
 	
 	public static void init () {

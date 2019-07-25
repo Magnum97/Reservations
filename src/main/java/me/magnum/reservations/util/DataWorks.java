@@ -24,14 +24,14 @@ public class DataWorks {
 	private static Reservations plugin = Reservations.getPlugin();
 	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
-	public static List <Player> onlineVets = new ArrayList <>();
-	public static Map <Integer, String> walkIns = new TreeMap <>();
+	static List <Player> onlineVets = new ArrayList <>();
+	static Map <Integer, String> walkIns = new TreeMap <>();
 	
 	@Getter
 	public static List <Appointment> appointmentList = new ArrayList <>();
 	
-	public static List <String> userList = new ArrayList <>();
-	public static HashMap <String, Appointment> userMap = new HashMap <>();
+	// private static List <String> userList = new ArrayList <>();
+	// private static HashMap <String, Appointment> userMap = new HashMap <>();
 	
 	private static int next;
 	private Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
@@ -161,8 +161,8 @@ public class DataWorks {
 	
 	public void addAppointment (Appointment appointment) {
 		appointmentList.add(appointment);
-		userList.add(appointment.getPlayerId());
-		userMap.put(appointment.getPlayerId(), appointment);
+		// userList.add(appointment.getPlayerId());
+		// userMap.put(appointment.getPlayerId(), appointment);
 		// timeSorted.put(appointment.getTime(), appointment.getPlayerId()); // Change in favor of making new list on check
 	}
 	
@@ -257,10 +257,11 @@ public class DataWorks {
 			if (walkIns.size() < 1) {
 				Common.tell(sender, pre + Config.noAppt);
 			}
-			walkIns.forEach((n, o) ->
-					                Common.tell(sender, pre + format
-							                .replaceAll("#", n.toString()) // todo change replace code to {} for consistancy
-							                .replaceAll("%player%", getOfflinePlayer(UUID.fromString(o)).getName())));
+			walkIns.forEach((n, o) -> {
+				Common.tell(sender, pre + format
+						.replaceAll("#", n.toString())
+						.replaceAll("%player%", getOfflinePlayer(UUID.fromString(o)).getName()));
+			});
 			
 		}
 		
@@ -367,17 +368,16 @@ public class DataWorks {
 	@SuppressWarnings("deprecation")
 	public Appointment getApt (String player) throws IllegalAccessException {
 		String pid = getOfflinePlayer(player).getUniqueId().toString();
-		for (int i = 0; i < appointmentList.size(); i++) {
-			Appointment a = appointmentList.get(i);
-			// Optional obj = Optional.ofNullable(a.getPlayerId());
-			
-			if (a.getPlayerId().equalsIgnoreCase(pid)) {
-				return a;
+		int i = 0;
+		while (i < appointmentList.size()) {
+			if (appointmentList.get(i).getPlayerId().equalsIgnoreCase(pid)) {
+				return appointmentList.get(i);
 			}
-			
+			i++;
 		}
 		return new Appointment();
 	}
+	
 	// for (Appointment a : appointmentList) {
 	// 	if (a.getPlayerId().equals(pid)) {
 	// 		return a;

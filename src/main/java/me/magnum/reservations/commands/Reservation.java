@@ -59,7 +59,7 @@ public class Reservation extends BaseCommand {
 			}
 			else {
 				if (dw.hasApt(player)) {
-					Common.tell(sender, pre + aptUpdate.replace("{player}", player)); //todo to config
+					Common.tell(sender, pre + aptUpdate.replace("%player%", player));
 					dw.updateApt(dw.getApt(player), time, reason);
 					return;
 				}
@@ -149,10 +149,10 @@ public class Reservation extends BaseCommand {
 		
 		if (dw.hasApt(player)) {
 			dw.cancelApt(dw.getApt(player));
-			Common.tell(sender, pre + canceled.replace("{player}", player));
+			Common.tell(sender, pre + canceled.replace("%player%", player));
 		}
 		else {
-			Common.tell(sender, pre + hasNoApt.replace("{player}", player));
+			Common.tell(sender, pre + hasNoApt.replace("%player%", player));
 		}
 	}
 	

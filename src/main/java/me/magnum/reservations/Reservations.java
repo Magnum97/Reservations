@@ -47,7 +47,6 @@ public final class Reservations extends JavaPlugin {
 		commandManager.enableUnstableAPI("help");
 		commands.addReplacement("command", command);
 		commandManager.registerCommand(new Reservation());
-		
 	}
 	
 	@Override
