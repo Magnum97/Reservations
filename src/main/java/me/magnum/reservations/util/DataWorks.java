@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
+import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
 import org.bukkit.Bukkit;
@@ -22,7 +23,7 @@ import static org.bukkit.Bukkit.getOfflinePlayer;
 public class DataWorks {
 	
 	private static Reservations plugin = Reservations.getPlugin();
-	private static final SimpleConfig data = new SimpleConfig("reservations.yml", false);
+	private static final SimpleConfig data = new SimpleConfig("reservations.yml", Reservations.plugin,false);
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
 	static List <Player> onlineVets = new ArrayList <>();
 	static Map <Integer, String> walkIns = new TreeMap <>();
