@@ -11,7 +11,7 @@ plugins {
 //}
  
 group = 'me.magnum.reservations'
-version = '1.2.1'
+version = '1.2.2'
 description = 'Simple ticket system'
 sourceCompatibility = '1.8'
 archivesBaseName = 'Reservations' // Put your artifactId here
