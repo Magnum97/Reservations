@@ -4,6 +4,7 @@ import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.CommandReplacements;
 import lombok.Getter;
 import me.magnum.lib.Common;
+import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.commands.Reservation;
 import me.magnum.reservations.util.*;
 import org.bukkit.Bukkit;
@@ -30,7 +31,7 @@ public final class Reservations extends JavaPlugin {
 		ReminderTask reminder = new ReminderTask();
 		Common.setInstance(plugin);
 		Common.log("Loading Config...");
-		cfg = new SimpleConfig("config.yml");
+		cfg = new SimpleConfig("config.yml",plugin);
 		Config.init();
 		Common.log("Initializing command manager...");
 		commandManager = new BukkitCommandManager(this);

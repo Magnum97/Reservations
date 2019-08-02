@@ -2,6 +2,8 @@ package me.magnum.reservations.util;
 
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
+import me.magnum.lib.SimpleConfig;
+import me.magnum.reservations.commands.Reservation;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class Config extends SimpleConfig {
@@ -24,7 +26,8 @@ public class Config extends SimpleConfig {
 	public static int remindDelay;
 	
 	private Config (String fileName) {
-		super(fileName);
+		super(fileName, Reservations.getPlugin());
+	
 		setHeader(new String[] {
 				"--------------------------------------------------------",
 				" Your configuration file got updated automatically!",
