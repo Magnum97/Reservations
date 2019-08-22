@@ -3,7 +3,6 @@ package me.magnum.reservations.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.Getter;
-import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
 import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
@@ -213,10 +212,8 @@ public class DataWorks {
 	}
 	
 	public void view (CommandSender sender) {
-		if (!CheckSender.isCommand(sender)) {
-			if (walkIns.size() < 1) {
-				Common.tell(sender, pre + Config.noAppt);
-			}
+		if (walkIns.size() < 1) {
+			Common.tell(sender, pre + Config.noAppt);
 			walkIns.forEach((n, o) -> {
 				Common.tell(sender, pre + format
 						.replaceAll("#", n.toString())
