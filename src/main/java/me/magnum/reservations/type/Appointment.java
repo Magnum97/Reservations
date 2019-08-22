@@ -13,7 +13,7 @@ public class Appointment implements Serializable, Comparable <Appointment> {
 	LocalDateTime time;
 	String reason;
 	String playerId;
-	boolean canceled;
+	int number;
 	
 	public Appointment () {
 	}
@@ -22,9 +22,14 @@ public class Appointment implements Serializable, Comparable <Appointment> {
 		this.playerId = playerId;
 		this.time = time;
 		this.reason = reason;
-		canceled = false;
 	}
 	
+	public Appointment (LocalDateTime time, String playerId, String reason,  int number) {
+		this.time = time;
+		this.reason = reason;
+		this.playerId = playerId;
+		this.number = number;
+	}
 	
 	@Override
 	public int compareTo (Appointment a) {

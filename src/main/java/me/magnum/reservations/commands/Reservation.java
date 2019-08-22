@@ -74,6 +74,7 @@ public class Reservation extends BaseCommand {
 			Common.tell(sender, pre + Config.hasAppt);
 			return;
 		}
+		dw.takeNumber(player);
 		result = dw.make(player);
 		if (result.contains(sender.getName())) {
 			result = result.replace(sender.getName(), "You");
@@ -105,11 +106,11 @@ public class Reservation extends BaseCommand {
 		DataWorks dw = new DataWorks();
 		if ((type.equalsIgnoreCase("waiting") ||
 				type.equalsIgnoreCase("all"))) {
-			dw.view(sender);
+			dw.showWaiting(sender);
 		}
 		if (type.equalsIgnoreCase("apt") ||
 				type.equalsIgnoreCase("all")) {
-			dw.listAppointments(sender);
+			dw.showAppointments(sender);
 		}
 	}
 	

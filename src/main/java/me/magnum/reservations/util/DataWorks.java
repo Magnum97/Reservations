@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static me.magnum.reservations.util.Config.*;
@@ -21,16 +22,16 @@ import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
 	
-	private static Reservations plugin = Reservations.getPlugin();
-	private static final SimpleConfig data = new SimpleConfig("reservations.yml", Reservations.plugin,false);
-	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
-	static List <Player> onlineVets = new ArrayList <>();
-	static Map <Integer, String> walkIns = new TreeMap <>();
-	
+	private static final SimpleConfig data = new SimpleConfig("reservations.yml", Reservations.plugin, false);
 	@Getter
 	public static List <Appointment> appointmentList = new ArrayList <>();
-	
+	static List <Appointment> dropIn = new ArrayList <>();
+	static List <Player> onlineVets = new ArrayList <>();
+	static Map <Integer, String> walkIns = new TreeMap <>();
+	private static Reservations plugin = Reservations.getPlugin();
 	private static int next;
+	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
+	private File waiting = new File(plugin.getDataFolder() + File.separator + "walkins.json");
 	private Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
 	
 	public DataWorks () {
@@ -65,6 +66,20 @@ public class DataWorks {
 			Common.log("&cData file was wrongly formatted.", "Could not load appointments.");
 		}
 		Common.log("Appt loaded");
+		try {
+			Reader reader = new FileReader(waiting);
+			Appointment[] waitingArray = gson.fromJson(reader, Appointment[].class);
+			dropIn = new ArrayList <>(Arrays.asList(waitingArray));
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Common.log("Could not load waiting list.");
+		}
+		catch (JsonSyntaxException jse) {
+			jse.printStackTrace();
+			Common.log("&cData file was corrupt or wrongly formatted.", "Could not load waiting list.");
+		}
+		Common.log("Waitinglist loaded");
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -94,6 +109,13 @@ public class DataWorks {
 		catch (IOException e) { // if any exception occurs it will catch
 			e.printStackTrace();
 		}
+	// 	if (!waiting.exists()) {
+	// 		waiting.createNewFile();
+	//
+	// 	}
+	// 	FileWriter wl = new FileWriter(waiting);
+	// 	BufferedWriter bwl = new BufferedWriter(wl);
+	// 	bwl.write();
 	}
 	
 	private void saveApt (String jsonAppt) {
@@ -140,13 +162,13 @@ public class DataWorks {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void listAppointments (CommandSender sender) {
+	public void showAppointments (CommandSender sender) {
 		if (appointmentList.isEmpty()) {
-			Common.tell(sender, pre + "No appts"); // todo verbose
+			Common.tell(sender, pre + "No appts"); // todo verbose and config
 			return;
 		}
-		String pattern = "E HH:mm"; // todo add to config
-		Collections.sort(appointmentList, Appointment::compareTo);
+		String pattern = "E, HH:mm"; // todo add to config
+		appointmentList.sort(Appointment::compareTo);
 		
 		for (Appointment a : appointmentList) {
 			String uuid = a.getPlayerId();
@@ -155,7 +177,39 @@ public class DataWorks {
 		}
 	}
 	
+	
+public void takeNumber (String player){
+		takeNumber(player, "");
+}
+	/**
+	 * Add player to queue and
+	 * assigns a number.
+	 *
+	 * @param player the player
+	 * @param reason the reason
+	 * @return the string
+	 */
 	@SuppressWarnings("deprecation")
+	public String takeNumber (String player, String reason) {
+		String playerId;
+		String result;
+		OfflinePlayer p = getOfflinePlayer(player);
+		if (p.hasPlayedBefore()) {
+			
+			playerId = p.getUniqueId().toString();
+			Appointment walkIn = new Appointment(LocalDateTime.now(), playerId, reason, next);
+			next++;
+			dropIn.add(walkIn);
+			result = confirmAppt.replace("%player%", p.getName());
+			return result;
+		}
+		else {
+			result = player + " has not logged into this server before.";
+			return result;
+		}
+	}
+	
+	@Deprecated
 	public String make (String player) {
 		String idString;
 		String result;
@@ -163,7 +217,7 @@ public class DataWorks {
 		if (p.hasPlayedBefore()) {
 			idString = p.getUniqueId().toString();
 			walkIns.put(next, idString);
-			next++;
+			// next++;
 			if (next > 99) {
 				next = 1;
 			}
@@ -193,6 +247,12 @@ public class DataWorks {
 		return ldt;
 	}
 	
+	/**
+	 * Check if player has a number already.
+	 *
+	 * @param player the player
+	 * @return the boolean
+	 */
 	@SuppressWarnings("deprecation")
 	public boolean checkNumber (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
@@ -200,6 +260,12 @@ public class DataWorks {
 		return walkIns.containsValue(playerId);
 	}
 	
+	/**
+	 * Check if player has an appointment.
+	 *
+	 * @param player the player
+	 * @return the boolean
+	 */
 	@SuppressWarnings("deprecation")
 	public boolean hasApt (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
@@ -211,18 +277,37 @@ public class DataWorks {
 		return onList;
 	}
 	
-	public void view (CommandSender sender) {
+	/**
+	 * Show waiting list to {@link CommandSender}
+	 *
+	 * @param sender the sender
+	 */
+	public void showWaiting (CommandSender sender) {
 		if (walkIns.size() < 1) {
 			Common.tell(sender, pre + Config.noAppt);
-			walkIns.forEach((n, o) -> {
-				Common.tell(sender, pre + format
-						.replaceAll("#", n.toString())
-						.replaceAll("%player%", getOfflinePlayer(UUID.fromString(o)).getName()));
-			});
-			
+			return;
 		}
 		
-	}
+		walkIns.forEach((n, o) -> {
+			Common.tell(sender, pre + format
+					.replaceAll("#", n.toString())
+					.replaceAll("%player%", getOfflinePlayer(UUID.fromString(o)).getName()));
+		});
+		Common.tell(sender, "New Method:");
+		if (dropIn.size() < 1) {
+			Common.tell(sender, pre + "No waiting");
+			return;
+		}
+		String pattern = "E, HH:mm";
+		dropIn.sort(Appointment::compareTo);
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+		dropIn.forEach(a -> {
+			Common.tell(sender, pre+"Made at"+
+					dtf.format(a.getTime())+ " by "+
+					getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName());
+		});
+		}
+	
 	
 	public String clear (int key) {
 		String result;
@@ -326,21 +411,6 @@ public class DataWorks {
 		appointment.setReason(reason);
 	}
 	
-	public void clearCanceled () {
-		Iterator it = appointmentList.iterator();
-		Appointment appointment;
-		while (it.hasNext()) {
-			appointment = (Appointment) it.next();
-			if (appointment.isCanceled()) {
-				appointmentList.remove(appointment);
-			}
-		}
-	}
-	
-	public void clearAppt (Appointment appointment) {
-		appointment.setCanceled(true);
-		appointmentList.remove(appointment);
-	}
 	
 	private void timedClear () {
 		if (appointmentList.isEmpty()) {

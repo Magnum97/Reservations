@@ -18,7 +18,7 @@ public final class Reservations extends JavaPlugin {
 	@Getter
 	public static Reservations plugin;
 	@Getter
-	public static SimpleConfig cfg;
+	public static SimpleConfig CFG;
 	@Getter
 	public BukkitCommandManager commandManager;
 	private CommandReplacements commands;
@@ -31,7 +31,7 @@ public final class Reservations extends JavaPlugin {
 		ReminderTask reminder = new ReminderTask();
 		Common.setInstance(plugin);
 		Common.log("Loading Config...");
-		cfg = new SimpleConfig("config.yml",plugin);
+		CFG = new SimpleConfig("config.yml", plugin);
 		Config.init();
 		Common.log("Initializing command manager...");
 		commandManager = new BukkitCommandManager(this);
