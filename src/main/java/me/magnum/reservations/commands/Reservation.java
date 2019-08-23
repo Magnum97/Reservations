@@ -74,8 +74,8 @@ public class Reservation extends BaseCommand {
 			Common.tell(sender, pre + Config.hasAppt);
 			return;
 		}
-		dw.takeNumber(player);
-		result = dw.make(player);
+		result = dw.takeNumber(player, reason);    // todo swap out dw.make for dw.takeNumber
+		// result = dw.make(player);
 		if (result.contains(sender.getName())) {
 			result = result.replace(sender.getName(), "You");
 		}
