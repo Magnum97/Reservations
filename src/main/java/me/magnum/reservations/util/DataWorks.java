@@ -2,7 +2,6 @@ package me.magnum.reservations.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import lombok.Getter;
 import me.magnum.lib.Common;
 import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
@@ -22,11 +21,9 @@ import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
-	
-	// private static final SimpleConfig data = new SimpleConfig("reservations.yml", Reservations.plugin, false);
-	@Getter
-	public static List <Appointment> appointmentList = new ArrayList <>();
-	static List <Appointment> dropIn = new ArrayList <>();
+
+	private static List <Appointment> appointmentList = new ArrayList <>();
+	private static List <Appointment> dropIn = new ArrayList <>();
 	static List <Player> onlineVets = new ArrayList <>();
 	static Map <Integer, Appointment> walkIns = new TreeMap <>();
 	private static Reservations plugin = Reservations.getPlugin();
@@ -34,24 +31,14 @@ public class DataWorks {
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
 	private File waiting = new File(plugin.getDataFolder() + File.separator + "walkins.json");
 	private Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
-	
+
 	public DataWorks () {
 	}
-	
+
 	void onLoad () {
 		Common.log("Getting next appointment");
 		next = CFG.getInt("next-appointment", 1);
 		Common.log("Loading waiting list...");
-		// try {
-		// 	for (String key : CFG.getConfigurationSection("waiting-list").getKeys(false)) {
-		// 		walkIns.put(Integer.parseInt(key), CFG.getString("waiting-list." + key));
-		// 	}
-		//
-		// }
-		// catch (NullPointerException e) {
-		// 	e.printStackTrace();
-		// 	Common.log("Could not load waiting list.");
-		// }
 		try {
 			Reader reader = new FileReader(waiting);
 			Appointment[] waitingArray = gson.fromJson(reader, Appointment[].class);
@@ -82,7 +69,7 @@ public class DataWorks {
 		}
 		Common.log("Appt loaded");
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private OfflinePlayer getPlayer (String player) {
 		OfflinePlayer offlinePlayer = getOfflinePlayer(player);
@@ -91,19 +78,19 @@ public class DataWorks {
 		}
 		return null;
 	}
-	
+
 	public void saveAll () {
-		
+
 		timedClear();
 		String jsonAppt = gson.toJson(appointmentList);
 		String jsonWaiting = gson.toJson(dropIn);
 		try {
+			FileWriter aptFW = new FileWriter(aptBook.getAbsoluteFile()); // creating fileWriter object with the file
+			BufferedWriter bw = new BufferedWriter(aptFW); // creating bufferWriter which is used to write the content into the file
 			if (!aptBook.exists()) {   // checks whether the file is Exist or not
 				aptBook.createNewFile();   // here if file not exist new file created
 			}
-			
-			FileWriter aptFW = new FileWriter(aptBook.getAbsoluteFile()); // creating fileWriter object with the file
-			BufferedWriter bw = new BufferedWriter(aptFW); // creating bufferWriter which is used to write the content into the file
+
 			bw.write(jsonAppt);
 			Common.log(pre + "Appointments saved");
 			bw.close(); // Closes the stream, flushing it first. Once the stream has been closed, further write() or flush() invocations will cause an IOException to be thrown. Closing a previously closed stream has no effect.
@@ -125,13 +112,7 @@ public class DataWorks {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public String makeAppt (String player, String time) {
-		String reason = "";
-		return makeAppt(player, time, reason);
-	}
-	
+
 	public String makeAppt (String player, String time, String reason) {
 		String result;
 		OfflinePlayer offlinePlayer = getPlayer(player);
@@ -145,11 +126,11 @@ public class DataWorks {
 		addAppointment(appointment);
 		return result;
 	}
-	
+
 	public void addAppointment (Appointment appointment) {
 		appointmentList.add(appointment);
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public void showAppointments (CommandSender sender) {
 		if (appointmentList.isEmpty()) {
@@ -158,19 +139,19 @@ public class DataWorks {
 		}
 		String pattern = "E, HH:mm"; // todo add to config
 		appointmentList.sort(Appointment::compareTo);
-		
+
 		for (Appointment a : appointmentList) {
 			String uuid = a.getPlayerId();
 			String player = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
 			Common.tell(sender, pre + "Time: " + a.getTime() + " Name: " + player);
 		}
 	}
-	
-	
+
+
 	public String takeNumber (String player) {
 		return takeNumber(player, "");
 	}
-	
+
 	/**
 	 * Add player to queue and
 	 * assigns a number.
@@ -198,33 +179,7 @@ public class DataWorks {
 			return result;
 		}
 	}
-	
-/* todo remove method
-	@Deprecated
-	public String make (String player) {
-		String idString;
-		String result;
-		OfflinePlayer p = getOfflinePlayer(player);
-		if (p.hasPlayedBefore()) {
-			idString = p.getUniqueId().toString();
-			walkIns.put(next, idString);
-			// next++;
-			if (next > 99) {
-				next = 1;
-			}
-			CFG.set("next-appointment", next);
-			CFG.write("waiting-list", walkIns);
-			CFG.saveConfig();
-			result = confirmAppt.replaceAll("%player%", p.getName());
-			return result;
-		}
-		else {
-			result = player + " has not logged in before.";
-			return result;
-		}
-	}
-*/
-	
+
 	private LocalDateTime parseDateTime (String date, String time) {
 		LocalDateTime ldt = null;
 		try {
@@ -238,7 +193,7 @@ public class DataWorks {
 		}
 		return ldt;
 	}
-	
+
 	/**
 	 * Check if player has a number already.
 	 *
@@ -251,7 +206,7 @@ public class DataWorks {
 		String playerId = p.getUniqueId().toString();
 		return walkIns.containsValue(playerId);
 	}
-	
+
 	/**
 	 * Check if player has an appointment.
 	 *
@@ -268,7 +223,7 @@ public class DataWorks {
 		}
 		return onList;
 	}
-	
+
 	/**
 	 * Show waiting list to {@link CommandSender}
 	 *
@@ -291,56 +246,53 @@ public class DataWorks {
 					.replaceAll("%reason%", a.getReason()));
 		}
 	}
-	
-	
+
+
 	public String clear (int key) {
 		String result;
 		if (walkIns.containsKey(key)) {
-			
+
 			OfflinePlayer offlinePlayer = getOfflinePlayer(UUID.fromString(walkIns.get(key).getPlayerId()));
 			dropIn.remove(walkIns.get(key));
 			walkIns.remove(key);
 			result = offlinePlayer.getName() + " has been removed from the queue.";
 			return result;
 		}
-		
 		else {
 			result = "A ticket with that number was not found";
 			return result;
 		}
-		
 	}
-	
+
 	public void wipe (CommandSender sender) {
-		if (walkIns.size() > 1) {
-			walkIns.clear();
+		if (dropIn.size() > 1) {
 			dropIn.clear();
 		}
 		else {
 			Common.tell(sender, noAppt);
 		}
 	}
-	
+
 	/**
 	 * Add player to list of online vets
 	 *
 	 * @param player Player to add to the list
 	 *               of online vets.
 	 */
-	public void addVet (Player player) {
+	void addVet (Player player) {
 		onlineVets.add(player);
 	}
-	
+
 	/**
 	 * Remove a vet from the list to be notified
 	 * of waiting appointments.
 	 *
 	 * @param player Player to remove from the list.
 	 */
-	public void removeVet (Player player) {
+	void removeVet (Player player) {
 		onlineVets.remove(player);
 	}
-	
+
 	/**
 	 * Get a LocalDateTime of next occurrence of specified
 	 * time
@@ -355,7 +307,7 @@ public class DataWorks {
 		LocalDateTime lt = LocalDateTime.now();
 		String stringHours = time.split("[:]")[0];
 		int hours = Integer.valueOf(stringHours);
-		if (time.matches(".{4,5}[p]")) { // todo fix detection os 12:00p as midnight
+		if (time.matches(".{4,5}[p]")) { // todo fix detection of 12:00p as midnight
 			hours += 12;
 			time = time.split("[:]")[1].split("[p]")[0];
 		}
@@ -365,13 +317,13 @@ public class DataWorks {
 		time = time.replaceFirst("\\d\\d([a|p])", "");
 		int minutes = Integer.valueOf(time);
 		LocalDateTime tt = lastMidnight.plusHours(hours).plusMinutes(minutes);
-		
+
 		if (tt.isBefore(lt)) {
 			tt = tt.plusDays(1);
 		}
 		return tt;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public Appointment getApt (String player) throws IllegalAccessException {
 		String pid = getOfflinePlayer(player).getUniqueId().toString();
@@ -384,17 +336,17 @@ public class DataWorks {
 		}
 		return new Appointment();
 	}
-	
+
 	public void cancelApt (Appointment appointment) {
 		appointmentList.remove(appointment);
 	}
-	
+
 	public void updateApt (Appointment appointment, String newTime, String reason) {
 		appointment.setTime(getTime(newTime));
 		appointment.setReason(reason);
 	}
-	
-	
+
+
 	private void timedClear () {
 		if (appointmentList.isEmpty()) {
 			Common.log("App list empty");
@@ -408,8 +360,8 @@ public class DataWorks {
 		}
 		toRemove.forEach(a -> appointmentList.remove(a));
 	}
-	
-	public void closeData () { //todo Save Appointments to config file
+
+	public void closeData () {
 		saveAll();
 		dropIn.clear();
 		appointmentList.clear();

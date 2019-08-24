@@ -1,13 +1,12 @@
 package me.magnum.reservations.util;
 
 import me.magnum.lib.Common;
-import me.magnum.reservations.Reservations;
 import me.magnum.lib.SimpleConfig;
-import me.magnum.reservations.commands.Reservation;
+import me.magnum.reservations.Reservations;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class Config extends SimpleConfig {
-	
+
 	public static int next;
 	public static String pre;
 	static String confirmAppt;
@@ -24,10 +23,10 @@ public class Config extends SimpleConfig {
 	public static String hasNoApt;
 	public static String aptUpdate;
 	public static int remindDelay;
-	
+
 	private Config (String fileName) {
 		super(fileName, Reservations.getPlugin());
-	
+
 		setHeader(new String[] {
 				"--------------------------------------------------------",
 				" Your configuration file got updated automatically!",
@@ -38,7 +37,7 @@ public class Config extends SimpleConfig {
 				"--------------------------------------------------------"
 		});
 	}
-	
+
 	private void onLoad () {
 		Common.setInstance(Reservations.getPlugin());
 		// Set stuff here
@@ -60,7 +59,7 @@ public class Config extends SimpleConfig {
 		aptUpdate = getString("messages.update-apt");
 		hasNoApt = getString("messages.no-appointments");
 	}
-	
+
 	public static void init () {
 		new Config("config.yml").onLoad();
 	}

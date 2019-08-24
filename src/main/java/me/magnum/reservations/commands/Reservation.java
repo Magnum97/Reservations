@@ -18,11 +18,11 @@ import static me.magnum.reservations.util.Config.*;
 @SuppressWarnings("deprecation")
 @CommandAlias("%command")
 public class Reservation extends BaseCommand {
-	
-	
+
+
 	public Reservation () {
 	}
-	
+
 	@Subcommand("make|call")
 	@Description("Make a reservation and get a number")
 	@CommandCompletion("@players")
@@ -34,7 +34,6 @@ public class Reservation extends BaseCommand {
 		if (player.equals("")) {
 			if ((CheckSender.isConsole(sender))) {
 				Common.tell(sender, pre + "I'm sorry console, you can't make an appointment for yourself.");
-				// Common.tell(sender,  help .getCurrentCommandManager().generateCommandHelp("make");
 				return;
 			}
 			else {
@@ -74,15 +73,14 @@ public class Reservation extends BaseCommand {
 			Common.tell(sender, pre + Config.hasAppt);
 			return;
 		}
-		result = dw.takeNumber(player, reason);    // todo swap out dw.make for dw.takeNumber
-		// result = dw.make(player);
+		result = dw.takeNumber(player, reason);
 		if (result.contains(sender.getName())) {
 			result = result.replace(sender.getName(), "You");
 		}
 		Common.tell(sender, pre + result);
 		Common.setInstance(Reservations.getPlugin());
 		Common.log(Config.logConfirm.replaceAll("%player%", player));
-		
+
 		int v = 0;
 		for (Player p : Bukkit.getOnlinePlayers()) { //todo change to read from onlineVet list
 			if (p.hasPermission("reservations.notify")) {
@@ -95,7 +93,7 @@ public class Reservation extends BaseCommand {
 			Common.tell(sender, pre + "There are " + v + " vets online right now.");
 		}
 	}
-	
+
 	@Subcommand("view|list")
 	@Description("View current reservations")
 	@CommandPermission("reservations.view")
@@ -113,7 +111,7 @@ public class Reservation extends BaseCommand {
 			dw.showAppointments(sender);
 		}
 	}
-	
+
 	@Subcommand("clear")
 	@Description("Clear a reservation from the list")
 	@CommandPermission("reservations.clear")
@@ -122,7 +120,7 @@ public class Reservation extends BaseCommand {
 		String result = dw.clear(key);
 		Common.tell(sender, pre + result);
 	}
-	
+
 	@Subcommand("cancel")
 	@Description("Cancel an appointment")
 	@CommandPermission("reservations.cancel.self")
@@ -147,7 +145,7 @@ public class Reservation extends BaseCommand {
 				return;
 			}
 		}
-		
+
 		if (dw.hasApt(player)) {
 			dw.cancelApt(dw.getApt(player));
 			Common.tell(sender, pre + canceled.replace("%player%", player));
@@ -156,7 +154,7 @@ public class Reservation extends BaseCommand {
 			Common.tell(sender, pre + hasNoApt.replace("%player%", player));
 		}
 	}
-	
+
 	@Subcommand("wipe")
 	@Description("Wipe the list clean baby!")
 	@CommandPermission("reservations.clear.all")
@@ -173,7 +171,7 @@ public class Reservation extends BaseCommand {
 			            pre + "&eTo confirm add &6confirm&e after the command.");
 		}
 	}
-	
+
 	@HelpCommand
 	public void onHelp (CommandSender sender, CommandHelp help) {
 		help.showHelp();
