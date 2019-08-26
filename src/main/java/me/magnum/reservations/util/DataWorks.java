@@ -22,10 +22,11 @@ import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
 
-	private static List <Appointment> appointmentList = new ArrayList <>();
-	private static List <Appointment> dropIn = new ArrayList <>();
 	static List <Player> onlineVets = new ArrayList <>();
 	static Map <Integer, Appointment> walkIns = new TreeMap <>();
+	private static List <Appointment> appointmentList = new ArrayList <>();
+	private static List <Appointment> dropIn = new ArrayList <>();
+	private static List <OfflinePlayer> playerList = new ArrayList <>();
 	private static Reservations plugin = Reservations.getPlugin();
 	private static int next;
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
@@ -247,21 +248,28 @@ public class DataWorks {
 		}
 	}
 
+	private Optional <Appointment> get (int key) {
+		for (Appointment a : dropIn) {
+			if (a.getNumber() == key) {
+				return Optional.of(a);
+			}
+		}
+		return Optional.empty();
+	}
 
 	public String clear (int key) {
-		String result;
-		if (walkIns.containsKey(key)) {
-
-			OfflinePlayer offlinePlayer = getOfflinePlayer(UUID.fromString(walkIns.get(key).getPlayerId()));
-			dropIn.remove(walkIns.get(key));
-			walkIns.remove(key);
-			result = offlinePlayer.getName() + " has been removed from the queue.";
-			return result;
+		String result = null;
+		Optional <Appointment> test;
+		test = get(key);
+		if (test.isPresent()) {
+			result = getOfflinePlayer(UUID.fromString(test.get().getPlayerId())).getName() +
+					" had been removed from the queue."; // todo move to messages config
+			dropIn.remove(test.get());
 		}
 		else {
 			result = "A ticket with that number was not found";
-			return result;
 		}
+		return result;
 	}
 
 	public void wipe (CommandSender sender) {
