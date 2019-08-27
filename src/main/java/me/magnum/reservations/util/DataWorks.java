@@ -3,7 +3,6 @@ package me.magnum.reservations.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import me.magnum.lib.Common;
-import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
 import org.bukkit.Bukkit;
@@ -38,7 +37,6 @@ public class DataWorks {
 
 	void onLoad () {
 		Common.log("Getting next appointment");
-		next = CFG.getInt("next-appointment", 1);
 		Common.log("Loading waiting list...");
 		try {
 			Reader reader = new FileReader(waiting);
@@ -69,6 +67,17 @@ public class DataWorks {
 			Common.log("&cData file was wrongly formatted.", "Could not load appointments.");
 		}
 		Common.log("Appt loaded");
+		setNext();
+	}
+
+	private void setNext () {
+		int max = dropIn.get(0).getNumber();
+		for (Appointment appointment : dropIn) {
+			if (appointment.getNumber() > max) {
+				max = appointment.getNumber();
+			}
+		}
+		next = max + 1;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -80,11 +89,11 @@ public class DataWorks {
 		return null;
 	}
 
-	public void saveAll () {
-
+	private void saveAll () {
 		timedClear();
 		String jsonAppt = gson.toJson(appointmentList);
 		String jsonWaiting = gson.toJson(dropIn);
+		CFG.saveConfig();
 		try {
 			FileWriter aptFW = new FileWriter(aptBook.getAbsoluteFile()); // creating fileWriter object with the file
 			BufferedWriter bw = new BufferedWriter(aptFW); // creating bufferWriter which is used to write the content into the file
@@ -135,12 +144,11 @@ public class DataWorks {
 	@SuppressWarnings("deprecation")
 	public void showAppointments (CommandSender sender) {
 		if (appointmentList.isEmpty()) {
-			Common.tell(sender, pre + "No appts"); // todo verbose and config
+			Common.tell(sender, pre + "There are currently no appointments."); // todo verbose and config
 			return;
 		}
 		String pattern = "E, HH:mm"; // todo add to config
 		appointmentList.sort(Appointment::compareTo);
-
 		for (Appointment a : appointmentList) {
 			String uuid = a.getPlayerId();
 			String player = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
@@ -168,7 +176,7 @@ public class DataWorks {
 		OfflinePlayer p = getOfflinePlayer(player);
 		if (p.hasPlayedBefore()) {
 			playerId = p.getUniqueId().toString();
-			Appointment walkIn = new Appointment(LocalDateTime.now(), playerId, reason, next);
+			Appointment walkIn = new Appointment(LocalDateTime.now(Clock.systemDefaultZone()), playerId, reason, next);
 			dropIn.add(walkIn);
 			walkIns.put(next, walkIn);
 			next++;
@@ -205,7 +213,7 @@ public class DataWorks {
 	public boolean checkNumber (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
 		String playerId = p.getUniqueId().toString();
-		return walkIns.containsValue(playerId);
+		return getByUUID(playerId).isPresent();
 	}
 
 	/**
@@ -239,8 +247,8 @@ public class DataWorks {
 		String pattern = "E, HH:mm";
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 		for (Appointment a : dropIn) {
-			SimpleConfig cfg = CFG;
-			Common.tell(sender, pre + cfg.getString("list-format")
+			Common.tell(sender, pre + CFG.getString("list-format")
+					.replace("\\n", System.getProperty("line.separator") + pre)
 					.replaceAll("#", String.valueOf(a.getNumber()))
 					.replaceAll("%player%", getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName())
 					.replaceAll("%time%", dtf.format(a.getTime()))
@@ -248,9 +256,18 @@ public class DataWorks {
 		}
 	}
 
-	private Optional <Appointment> get (int key) {
+	private Optional <Appointment> getByNumber (int key) {
 		for (Appointment a : dropIn) {
 			if (a.getNumber() == key) {
+				return Optional.of(a);
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional <Appointment> getByUUID (String playerId) {
+		for (Appointment a : dropIn) {
+			if (a.getPlayerId().equalsIgnoreCase(playerId)) {
 				return Optional.of(a);
 			}
 		}
@@ -260,7 +277,7 @@ public class DataWorks {
 	public String clear (int key) {
 		String result = null;
 		Optional <Appointment> test;
-		test = get(key);
+		test = getByNumber(key);
 		if (test.isPresent()) {
 			result = getOfflinePlayer(UUID.fromString(test.get().getPlayerId())).getName() +
 					" had been removed from the queue."; // todo move to messages config
