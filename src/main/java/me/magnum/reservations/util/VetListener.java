@@ -11,18 +11,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static me.magnum.reservations.util.Config.pre;
 import static me.magnum.reservations.util.Config.waiting;
-import static me.magnum.reservations.util.DataWorks.walkIns;
+import static me.magnum.reservations.util.DataWorks.dropIn;
 
 public class VetListener implements Listener {
-	
+
 	private DataWorks dw = new DataWorks();
-	
+
 	@EventHandler
 	public void onJoin (PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		if (player.hasPermission("horserpg.vet")) {
 			dw.addVet(event.getPlayer());
-			if (walkIns.size() > 0) {
+			if (dropIn.size() > 0) {
 				BukkitRunnable notice = new BukkitRunnable() {
 					@Override
 					public void run () {
@@ -33,11 +33,11 @@ public class VetListener implements Listener {
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void onQuit (PlayerQuitEvent event) {
 		dw.removeVet(event.getPlayer());
-		
+
 	}
-	
+
 }

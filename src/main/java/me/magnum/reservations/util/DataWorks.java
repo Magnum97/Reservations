@@ -22,9 +22,8 @@ import static org.bukkit.Bukkit.getOfflinePlayer;
 public class DataWorks {
 
 	static List <Player> onlineVets = new ArrayList <>();
-	static Map <Integer, Appointment> walkIns = new TreeMap <>();
 	private static List <Appointment> appointmentList = new ArrayList <>();
-	private static List <Appointment> dropIn = new ArrayList <>();
+	static List <Appointment> dropIn = new ArrayList <>();
 	private static List <OfflinePlayer> playerList = new ArrayList <>();
 	private static Reservations plugin = Reservations.getPlugin();
 	private static int next;
@@ -178,7 +177,7 @@ public class DataWorks {
 			playerId = p.getUniqueId().toString();
 			Appointment walkIn = new Appointment(LocalDateTime.now(Clock.systemDefaultZone()), playerId, reason, next);
 			dropIn.add(walkIn);
-			walkIns.put(next, walkIn);
+			// walkIns.put(next, walkIn);
 			next++;
 			result = confirmAppt.replace("%player%", p.getName());
 			return result;
