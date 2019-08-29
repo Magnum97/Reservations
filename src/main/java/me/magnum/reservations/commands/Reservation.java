@@ -8,12 +8,14 @@ import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.util.Config;
 import me.magnum.reservations.util.DataWorks;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+
 import static me.magnum.reservations.util.Config.*;
+import static me.magnum.reservations.util.DataWorks.onlineVets;
 
 @SuppressWarnings("deprecation")
 @CommandAlias("%command")
@@ -80,17 +82,21 @@ public class Reservation extends BaseCommand {
 		Common.tell(sender, pre + result);
 		Common.setInstance(Reservations.getPlugin());
 		Common.log(Config.logConfirm.replaceAll("%player%", player));
-
-		int v = 0;
-		for (Player p : Bukkit.getOnlinePlayers()) { //todo change to read from onlineVet list
-			if (p.hasPermission("reservations.notify")) {
-				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
-				Common.tell(p, pre + Config.playerConfirm.replaceAll("%player%", player));
-				v++;
-			}
+		ArrayList <String> vets = new ArrayList <>();
+		for (Player vet : onlineVets) {
+			vets.add(vet.getName());
+			vet.playSound(vet.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
+			Common.tell(vet, pre + Config.playerConfirm.replaceAll("%player%", player));
 		}
+		// for (Player p : Bukkit.getOnlinePlayers()) { //todo change to read from onlineVet list
+		// 	if (p.hasPermission("reservations.notify")) {
+		// 		p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
+		// 		Common.tell(p, pre + Config.playerConfirm.replaceAll("%player%", player));
+		// 	}
+		// }
 		if (sender instanceof Player) { //todo change to config based message.
-			Common.tell(sender, pre + "There are " + v + " vets online right now.");
+			Common.tell(sender, pre + "There are " + onlineVets.size() + " vets online right now:",
+			            "&9 " + vets);
 		}
 	}
 
@@ -99,6 +105,12 @@ public class Reservation extends BaseCommand {
 	@CommandPermission("reservations.view")
 	public void onView (CommandSender sender, @Default("all") String type) {
 		if (CheckSender.isCommand(sender)) {
+			return;
+		}
+		if (type.equalsIgnoreCase("help")) {
+			Common.tell(sender,
+			            pre + "Command useage: &e/va view [all | waiting | apt]",
+			            pre + "To list all, only waiting, or only scheduled appointments.");
 			return;
 		}
 		DataWorks dw = new DataWorks();
@@ -158,13 +170,14 @@ public class Reservation extends BaseCommand {
 	@Subcommand("wipe")
 	@Description("Wipe the list clean baby!")
 	@CommandPermission("reservations.clear.all")
-	public void onWipe (CommandSender sender, @Optional String confirm) {
-		if (confirm == null) {
-			confirm = "";
-		}
+	public void onWipe (CommandSender sender, @Default("") String confirm) {
+		// if (confirm == null) {
+		// 	confirm = "";
+		// }
 		if (confirm.equalsIgnoreCase("confirm")) {
 			DataWorks dw = new DataWorks();
 			dw.wipe(sender);
+			Common.tell(sender, pre+"&eThe waiting list has been wiped.");
 		}
 		else {
 			Common.tell(sender, pre + "&cYou are about to clear the list.",

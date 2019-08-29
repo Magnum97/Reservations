@@ -21,9 +21,9 @@ import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
 
-	static List <Player> onlineVets = new ArrayList <>();
-	private static List <Appointment> appointmentList = new ArrayList <>();
+	public static List <Player> onlineVets = new ArrayList <>();
 	static List <Appointment> dropIn = new ArrayList <>();
+	private static List <Appointment> appointmentList = new ArrayList <>();
 	private static List <OfflinePlayer> playerList = new ArrayList <>();
 	private static Reservations plugin = Reservations.getPlugin();
 	private static int next;
@@ -65,18 +65,23 @@ public class DataWorks {
 			jse.printStackTrace();
 			Common.log("&cData file was wrongly formatted.", "Could not load appointments.");
 		}
-		Common.log("Appt loaded");
+		Common.log("Appointments loaded");
 		setNext();
 	}
 
 	private void setNext () {
-		int max = dropIn.get(0).getNumber();
-		for (Appointment appointment : dropIn) {
-			if (appointment.getNumber() > max) {
-				max = appointment.getNumber();
+		if (dropIn.size() > 0) {
+			int max = dropIn.get(0).getNumber();
+			for (Appointment appointment : dropIn) {
+				if (appointment.getNumber() > max) {
+					max = appointment.getNumber();
+				}
 			}
+			next = max + 1;
 		}
-		next = max + 1;
+		else {
+			next = 1;
+		}
 	}
 
 	@SuppressWarnings("deprecation")
