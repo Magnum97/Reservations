@@ -66,6 +66,7 @@ public class Reservation extends BaseCommand {
 				}
 				result = dw.makeAppt(player, time, reason);
 				Common.tell(sender, pre + result);
+				return;
 			}
 		}
 		if (sender instanceof Player) {
@@ -88,12 +89,6 @@ public class Reservation extends BaseCommand {
 			vet.playSound(vet.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
 			Common.tell(vet, pre + Config.playerConfirm.replaceAll("%player%", player));
 		}
-		// for (Player p : Bukkit.getOnlinePlayers()) { //todo change to read from onlineVet list
-		// 	if (p.hasPermission("reservations.notify")) {
-		// 		p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
-		// 		Common.tell(p, pre + Config.playerConfirm.replaceAll("%player%", player));
-		// 	}
-		// }
 		if (sender instanceof Player) { //todo change to config based message.
 			Common.tell(sender, pre + "There are " + onlineVets.size() + " vets online right now:",
 			            "&9 " + vets);

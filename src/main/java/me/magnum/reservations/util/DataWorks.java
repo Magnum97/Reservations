@@ -145,18 +145,57 @@ public class DataWorks {
 		appointmentList.add(appointment);
 	}
 
+	/**
+	 * Show waiting list to {@link CommandSender}
+	 * or display noAppt message from config.
+	 *
+	 * @param sender the sender
+	 */
+	public void showWaiting (CommandSender sender) {
+		if (dropIn.size() < 1) {
+			Common.tell(sender, pre + Config.noAppt);
+			return;
+		}
+		dropIn.sort(Appointment::compareTo);
+		String pattern = "E, HH:mm";
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+		for (Appointment a : dropIn) {
+			Common.tell(sender, pre + CFG.getString("list-format")
+					.replace("\\n", System.getProperty("line.separator") + pre)
+					.replaceAll("#", String.valueOf(a.getNumber()))
+					.replaceAll("%player%", getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName())
+					.replaceAll("%time%", dtf.format(a.getTime()))
+					.replaceAll("%reason%", a.getReason()));
+		}
+	}
+
+	/**
+	 * Display appointments to {@link CommandSender} that are scheduled
+	 * or message that none are made.
+	 *
+	 * @param sender the sender
+	 */
 	@SuppressWarnings("deprecation")
 	public void showAppointments (CommandSender sender) {
 		if (appointmentList.isEmpty()) {
 			Common.tell(sender, pre + "There are currently no appointments."); // todo verbose and config
 			return;
 		}
+		timedClear();
 		String pattern = "E, HH:mm"; // todo add to config
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 		appointmentList.sort(Appointment::compareTo);
 		for (Appointment a : appointmentList) {
 			String uuid = a.getPlayerId();
 			String player = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
-			Common.tell(sender, pre + "Time: " + a.getTime() + " Name: " + player);
+			LocalDateTime localDateTime = a.getTime();
+			String time = localDateTime.format(dtf);
+			Common.tell(sender, pre + "Time: " + time + " Name: " + player
+					.replace("\\n", "\n")
+					.replace("%time%", time)
+					.replace("%player%", player)
+					.replace("%reason", a.getReason())
+			);
 		}
 	}
 
@@ -235,29 +274,6 @@ public class DataWorks {
 			onList = a.getPlayerId().equals(playerId);
 		}
 		return onList;
-	}
-
-	/**
-	 * Show waiting list to {@link CommandSender}
-	 *
-	 * @param sender the sender
-	 */
-	public void showWaiting (CommandSender sender) {
-		if (dropIn.size() < 1) {
-			Common.tell(sender, pre + Config.noAppt);
-			return;
-		}
-		dropIn.sort(Appointment::compareTo);
-		String pattern = "E, HH:mm";
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
-		for (Appointment a : dropIn) {
-			Common.tell(sender, pre + CFG.getString("list-format")
-					.replace("\\n", System.getProperty("line.separator") + pre)
-					.replaceAll("#", String.valueOf(a.getNumber()))
-					.replaceAll("%player%", getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName())
-					.replaceAll("%time%", dtf.format(a.getTime()))
-					.replaceAll("%reason%", a.getReason()));
-		}
 	}
 
 	private Optional <Appointment> getByNumber (int key) {
@@ -378,7 +394,8 @@ public class DataWorks {
 
 	private void timedClear () {
 		if (appointmentList.isEmpty()) {
-			Common.log("App list empty");
+			Common.log("App list empty"); //todo remove debug msg
+			return;
 		}
 		List <Appointment> toRemove = new ArrayList <>();
 		for (Appointment a : appointmentList) {
