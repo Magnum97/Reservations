@@ -1,8 +1,11 @@
 package me.magnum.reservations.util;
 
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import me.magnum.lib.Common;
+import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
 import org.bukkit.Bukkit;
@@ -15,7 +18,6 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static me.magnum.reservations.Reservations.CFG;
 import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
@@ -30,6 +32,7 @@ public class DataWorks {
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
 	private File waiting = new File(plugin.getDataFolder() + File.separator + "walkins.json");
 	private Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
+	private SimpleConfig cfg = new SimpleConfig("config.yml", Reservations.getPlugin());
 
 	public DataWorks () {
 	}
@@ -97,7 +100,7 @@ public class DataWorks {
 		timedClear();
 		String jsonAppt = gson.toJson(appointmentList);
 		String jsonWaiting = gson.toJson(dropIn);
-		CFG.saveConfig();
+		cfg.saveConfig();
 		try {
 			FileWriter aptFW = new FileWriter(aptBook.getAbsoluteFile()); // creating fileWriter object with the file
 			BufferedWriter bw = new BufferedWriter(aptFW); // creating bufferWriter which is used to write the content into the file
@@ -160,12 +163,15 @@ public class DataWorks {
 		String pattern = "E, HH:mm";
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 		for (Appointment a : dropIn) {
-			Common.tell(sender, pre + CFG.getString("list-format")
+			Essentials essentials = Reservations.getEss();
+			User user = essentials.getUser(UUID.fromString(a.getPlayerId()));
+			String name = user.getDisplayName();
+			Common.tell(sender, pre + cfg.getString("list-format")
 					.replace("\\n", System.getProperty("line.separator") + pre)
-					.replaceAll("#", String.valueOf(a.getNumber()))
-					.replaceAll("%player%", getOfflinePlayer(UUID.fromString(a.getPlayerId())).getName())
-					.replaceAll("%time%", dtf.format(a.getTime()))
-					.replaceAll("%reason%", a.getReason()));
+					.replace("#", String.valueOf(a.getNumber()))
+					.replace("%player%", name)
+					.replace("%time%", dtf.format(a.getTime()))
+					.replace("%reason%", a.getReason()));
 		}
 	}
 

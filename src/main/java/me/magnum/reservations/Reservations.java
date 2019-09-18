@@ -1,58 +1,91 @@
 package me.magnum.reservations;
 
 import co.aikar.commands.BukkitCommandManager;
-import co.aikar.commands.CommandReplacements;
+import com.earth2me.essentials.Essentials;
 import lombok.Getter;
+import lombok.var;
 import me.magnum.lib.Common;
 import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.commands.Reservation;
-import me.magnum.reservations.util.*;
+import me.magnum.reservations.util.Config;
+import me.magnum.reservations.util.DataWorks;
+import me.magnum.reservations.util.ReminderTask;
+import me.magnum.reservations.util.VetListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.util.logging.Logger;
+
 import static me.magnum.reservations.util.Config.command;
 
 public final class Reservations extends JavaPlugin {
-	
+
 	@Getter
-	public static Reservations plugin;
+	public static Essentials ess;
 	@Getter
-	public static SimpleConfig CFG;
+	private static Reservations plugin;
 	@Getter
-	public BukkitCommandManager commandManager;
-	private CommandReplacements commands;
+	private BukkitCommandManager commandManager;
 	private BukkitScheduler bs = Bukkit.getScheduler();
-	
-	@SuppressWarnings("deprecation")
+
 	@Override
 	public void onEnable () {
 		plugin = this;
-		ReminderTask reminder = new ReminderTask();
+		Logger log = plugin.getLogger();
 		Common.setInstance(plugin);
-		Common.log("Loading Config...");
-		CFG = new SimpleConfig("config.yml", plugin);
+		if (!hasEssentials()){
+			log.warning("Essentials not found. Disabling plugin");
+			plugin.onDisable();
+			return;
+		}
+		log.info("Loading Config...");
+		var config = new SimpleConfig("config.yml", plugin);
 		Config.init();
-		Common.log("Initializing command manager...");
-		commandManager = new BukkitCommandManager(this);
-		commands = commandManager.getCommandReplacements();
+		log.info("Initializing command manager...");
 		registerCommands();
-		Common.log("Registering commands");
+		log.info("Registering command...");
+		log.info("Registering event listeners...");
+		setupEvents();
+		if (plugin.isEnabled()) {
+			log.info("Plugin enabled.");
+		}
+		else {
+			log.severe("Something went wrong. Plugin Disabled");
+		}
+	}
+
+	private boolean hasEssentials () {
+		if (getServer().getPluginManager().getPlugin("Essentials") != null) {
+			ess = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void setupEvents () {
+		var reminder = new ReminderTask();
 		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
 		bs.runTaskLater(plugin, reminder, 20 * 10);
 		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * Config.remindDelay);
+
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private void registerCommands () {
+		commandManager = new BukkitCommandManager(plugin);
+		var commands = commandManager.getCommandReplacements();
 		commandManager.enableUnstableAPI("help");
 		commands.addReplacement("command", command);
 		commandManager.registerCommand(new Reservation());
 	}
-	
+
 	@Override
 	public void onDisable () {
-		DataWorks dw = new DataWorks();
+		var dw = new DataWorks();
 		bs.cancelAllTasks();
 		dw.closeData();
 	}

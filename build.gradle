@@ -1,11 +1,14 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+    id 'nebula.lint' version '14.1.0'
 }
+gradleLint.rules = ['all-dependency'] // add as many rules here as you'd like
 
 group = 'me.magnum.reservations'
 version = '1.2.2'
@@ -17,10 +20,13 @@ mainClassName = 'me.magnum.reservations.Reservations'
 
 repositories {
     mavenLocal()
+    maven { url = 'http://mrmaurice.me:8081/repository/mister-repo/' }
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url = 'https://oss.sonatype.org/content/groups/public/' }
     maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
+    maven { url = 'https://ci.ender.zone/plugin/repository/everything/' }
     maven { url = 'https://jitpack.io' }
+    mavenCentral()
 }
 compileJava {
     options.compilerArgs += ["-parameters"]
@@ -30,21 +36,30 @@ compileJava {
 
 shadowJar {
 //    archiveFileName = ${archivesBaseName}.${archiveExtension}
+    relocate 'co.aikar.commands', 'me.magnum.reservations.acf'
+    relocate 'me.magnum.lib', 'me.magnum.reservations.lib'
     version = null
     classifier = null
     minimize()
 }
 
 dependencies {
+    compile 'co.aikar:acf-core:0.5.0-SNAPSHOT'
     compileOnly 'io.apexcreations:HorseRPG:3.1'
+    compileOnly "com.github.MilkBowl:VaultAPI:1.7"
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
     implementation 'com.google.guava:guava:28.0-jre'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    compile 'com.google.code.gson:gson:2.8.5'
+    compileOnly 'net.ess3:EssentialsX:2.17.0'
 
-    implementation 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
+    compile 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    compile 'co.aikar:acf-bukkit:0.5.0-SNAPSHOT'
+    compile 'co.aikar:acf-core:0.5.0-SNAPSHOT'
+    compile 'com.google.code.gson:gson:2.8.5'
+    compile 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
 }
 /* This will replace '@VERSION@' in the plugin.yml with the version declared above, just put '@VERSION@' for the version in the plugin.yml Example plugin.yml:
 
@@ -63,16 +78,13 @@ processResources {
     ]
 }
 task relocateShadowJar(type: ConfigureShadowRelocation) {
-    target = tasks.shadowJar
-//    prefix = "sha" // Default value is "shadow"
-
+    target = tasks.shadowJar as ShadowJar
+//    prefix = "me.magnum.reservations" /* Default value is "shadow"*/ 
 }
 
 tasks.shadowJar.dependsOn tasks.relocateShadowJar
 
-build.dependsOn shadowJar
-
-
+tasks.build.dependsOn shadowJar
 
 
 tasks.withType(JavaCompile) {

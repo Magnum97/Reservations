@@ -3,6 +3,8 @@ package me.magnum.reservations.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
+import com.earth2me.essentials.User;
+import lombok.var;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import static me.magnum.reservations.util.Config.*;
 import static me.magnum.reservations.util.DataWorks.onlineVets;
 
-@SuppressWarnings("deprecation")
 @CommandAlias("%command")
 public class Reservation extends BaseCommand {
 

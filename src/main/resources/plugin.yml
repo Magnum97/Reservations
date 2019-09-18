@@ -1,6 +1,36 @@
 name: @NAME@
 main: @MAIN@
 version: @VERSION@
-authors: [Magnum1997]
-description: Make and give items special to your server.
-prefix: [Reservations]
+description: Simple ticket system
+author: Magnum1997
+depend: [Essentials, HorseRPG]
+prefix: Reservations
+default-permission: true
+
+permissions:
+  reservations.make.other:
+    description: Make appt for other players
+    default: false
+    children:
+      reservations.make
+  reservations.make:
+    description: Make an appt
+    default: true
+  reservations.view:
+    description: List all appointments
+    default: true
+  reservations.cancel:
+    description: Cancel an appointment
+    default: true
+  reservations.cancel.others:
+    description: Cancel others' appointments
+    default: false
+    children:
+      reservations.cancel
+  reservations.clear.all:
+    description: Wipe all reservations
+    default: false
+    children:
+      reservations.clear
+  reservations.clear:
+    description: Remove a number from the list
