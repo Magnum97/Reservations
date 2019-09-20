@@ -4,19 +4,27 @@ import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import lombok.var;
 import me.magnum.lib.Common;
 import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
@@ -26,7 +34,7 @@ public class DataWorks {
 	public static List <Player> onlineVets = new ArrayList <>();
 	static List <Appointment> dropIn = new ArrayList <>();
 	private static List <Appointment> appointmentList = new ArrayList <>();
-	private static List <OfflinePlayer> playerList = new ArrayList <>();
+	// private static List <OfflinePlayer> playerList = new ArrayList <>();
 	private static Reservations plugin = Reservations.getPlugin();
 	private static int next;
 	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
@@ -130,6 +138,15 @@ public class DataWorks {
 		}
 	}
 
+	/**
+	 * Check if given name has played before and
+	 * Make new appointment if true.
+	 *
+	 * @param player the player's name as String
+	 * @param time   the time as String
+	 * @param reason Optional field for future use.
+	 * @return the string
+	 */
 	public String makeAppt (String player, String time, String reason) {
 		String result;
 		OfflinePlayer offlinePlayer = getPlayer(player);
@@ -137,14 +154,15 @@ public class DataWorks {
 			result = player + " has never logged in to this server."; //todo move to config
 			return result;
 		}
-		LocalDateTime ldt = getTime(time);
-		Appointment appointment = new Appointment(ldt, offlinePlayer.getUniqueId().toString(), reason);
+		// User user = (User) offlinePlayer;
+		LocalTime localTime = parseTime(time);
+		Appointment appointment = new Appointment(localTime, offlinePlayer.getUniqueId().toString(), reason);
 		result = "Appointment created";
 		addAppointment(appointment);
 		return result;
 	}
 
-	public void addAppointment (Appointment appointment) {
+	private void addAppointment (Appointment appointment) {
 		appointmentList.add(appointment);
 	}
 
@@ -160,7 +178,7 @@ public class DataWorks {
 			return;
 		}
 		dropIn.sort(Appointment::compareTo);
-		String pattern = "E, HH:mm";
+		String pattern = "HH:mm";
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 		for (Appointment a : dropIn) {
 			Essentials essentials = Reservations.getEss();
@@ -188,20 +206,45 @@ public class DataWorks {
 			return;
 		}
 		timedClear();
-		String pattern = "E, HH:mm"; // todo add to config
+		String pattern = "HH:mm"; // todo add to config
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 		appointmentList.sort(Appointment::compareTo);
+
+		Essentials essentials = Reservations.getEss();
+		User user;
+
+		TextComponent baseMessage = new TextComponent();
+		TextComponent hoverMessage = new TextComponent();
+		HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage).create());
+		TextComponent copyText = new TextComponent();
+		String jsonName;
 		for (Appointment a : appointmentList) {
-			String uuid = a.getPlayerId();
-			String player = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
-			LocalDateTime localDateTime = a.getTime();
-			String time = localDateTime.format(dtf);
-			Common.tell(sender, pre + "Time: " + time + " Name: " + player
+			user = essentials.getUser(UUID.fromString(a.getPlayerId()));
+			String player = user.getDisplayName();
+			String ign = user.getName();
+			LocalTime apptTime = a.getTime();
+			String time = apptTime.format(dtf);
+			jsonName = user.getDisplayName();
+			baseMessage.setText(pre + "Time: " + time + " Name: " + player
 					.replace("\\n", "\n")
 					.replace("%time%", time)
 					.replace("%player%", player)
-					.replace("%reason", a.getReason())
-			);
+					.replace("%reason", a.getReason()));
+			hoverMessage.setText("§eClick to message\n§f" + user.getName());
+			copyText.setText("/w " + user.getName());
+			if (!(sender instanceof Player)) {
+				sender.spigot().sendMessage(baseMessage);
+			}
+			else {
+				baseMessage.setHoverEvent(hoverItem);
+				sender.spigot().sendMessage(baseMessage);
+			}
+			// Common.tell(sender, pre + "Time: " + time + " Name: " + player
+			// 		.replace("\\n", "\n")
+			// 		.replace("%time%", time)
+			// 		.replace("%player%", player)
+			// 		.replace("%reason", a.getReason())
+			// );
 		}
 	}
 
@@ -225,9 +268,8 @@ public class DataWorks {
 		OfflinePlayer p = getOfflinePlayer(player);
 		if (p.hasPlayedBefore()) {
 			playerId = p.getUniqueId().toString();
-			Appointment walkIn = new Appointment(LocalDateTime.now(Clock.systemDefaultZone()), playerId, reason, next);
+			Appointment walkIn = new Appointment(LocalTime.now(Clock.systemDefaultZone()), playerId, reason, next);
 			dropIn.add(walkIn);
-			// walkIns.put(next, walkIn);
 			next++;
 			result = confirmAppt.replace("%player%", p.getName());
 			return result;
@@ -344,6 +386,33 @@ public class DataWorks {
 		onlineVets.remove(player);
 	}
 
+	private String to24HourTime (String input) {
+		if (input.length() < 5) {
+			return "0" + input;
+		}
+		else {
+			return input;
+		}
+
+	}
+
+	private LocalTime parseTime (@NotNull String stringTime) {
+		stringTime = to24HourTime(stringTime);
+		return LocalTime.parse(stringTime);
+/*
+		LocalTime now = LocalTime.now();
+		int c = now.compareTo(later);
+		if (c >= 1) {
+			System.out.println(later + " has already passed today.");
+		}
+		else {
+			if (c < 0) {
+				System.out.println(later + " has not happened yet today.");
+			}
+		}
+*/
+	}
+
 	/**
 	 * Get a LocalDateTime of next occurrence of specified
 	 * time
@@ -351,6 +420,7 @@ public class DataWorks {
 	 * @param time String of time in format HH:mm or hh:mma
 	 * @return
 	 */
+	@Deprecated
 	private LocalDateTime getTime (String time) {
 		LocalTime midnight = LocalTime.MIDNIGHT;
 		LocalDate today = LocalDate.now(ZoneId.of("US/Eastern"));
@@ -393,7 +463,7 @@ public class DataWorks {
 	}
 
 	public void updateApt (Appointment appointment, String newTime, String reason) {
-		appointment.setTime(getTime(newTime));
+		appointment.setTime(parseTime(newTime));
 		appointment.setReason(reason);
 	}
 
@@ -404,13 +474,23 @@ public class DataWorks {
 			return;
 		}
 		List <Appointment> toRemove = new ArrayList <>();
-		for (Appointment a : appointmentList) {
-			LocalDateTime lt = LocalDateTime.now();
-			if (a.getTime().isBefore(lt.minusMinutes(30))) {
+		var now = System.currentTimeMillis();
+		var minuteMilli = TimeUnit.MINUTES.toMillis(1);
+
+		appointmentList.forEach(a -> {
+			if ( (now-a.getCreated())> minuteMilli*30) {
 				toRemove.add(a);
 			}
-		}
+		});
 		toRemove.forEach(a -> appointmentList.remove(a));
+		//
+		// for (Appointment a : appointmentList) {
+		// 	LocalDateTime lt = LocalDateTime.now();
+		// 	if (a.getTime().isBefore(lt.minusMinutes(30))) {
+		// 		toRemove.add(a);
+		// 	}
+		// }
+		// toRemove.forEach(a -> appointmentList.remove(a));
 	}
 
 	public void closeData () {

@@ -32,7 +32,7 @@ public final class Reservations extends JavaPlugin {
 	@Override
 	public void onEnable () {
 		plugin = this;
-		Logger log = plugin.getLogger();
+		var log = plugin.getLogger();
 		Common.setInstance(plugin);
 		if (!hasEssentials()){
 			log.warning("Essentials not found. Disabling plugin");
