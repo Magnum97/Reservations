@@ -3,8 +3,6 @@ package me.magnum.reservations.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
-import com.earth2me.essentials.User;
-import lombok.var;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
@@ -173,7 +171,7 @@ public class Reservation extends BaseCommand {
 		if (confirm.equalsIgnoreCase("confirm")) {
 			DataWorks dw = new DataWorks();
 			dw.wipe(sender);
-			Common.tell(sender, pre+"&eThe waiting list has been wiped.");
+			Common.tell(sender, pre + "&eThe waiting list has been wiped.");
 		}
 		else {
 			Common.tell(sender, pre + "&cYou are about to clear the list.",

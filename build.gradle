@@ -44,6 +44,7 @@ shadowJar {
 }
 
 dependencies {
+    compile 'org.jetbrains:annotations:13.0'
     compile 'co.aikar:acf-core:0.5.0-SNAPSHOT'
     compileOnly 'io.apexcreations:HorseRPG:3.1'
     compileOnly "com.github.MilkBowl:VaultAPI:1.7"
@@ -60,6 +61,7 @@ dependencies {
     compile 'co.aikar:acf-core:0.5.0-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.8.5'
     compile 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
+    compile 'org.jetbrains:annotations:13.0'
 }
 /* This will replace '@VERSION@' in the plugin.yml with the version declared above, just put '@VERSION@' for the version in the plugin.yml Example plugin.yml:
 

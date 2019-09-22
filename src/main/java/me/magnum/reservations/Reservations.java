@@ -15,8 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.logging.Logger;
-
 import static me.magnum.reservations.util.Config.command;
 
 public final class Reservations extends JavaPlugin {
@@ -34,7 +32,7 @@ public final class Reservations extends JavaPlugin {
 		plugin = this;
 		var log = plugin.getLogger();
 		Common.setInstance(plugin);
-		if (!hasEssentials()){
+		if (!hasEssentials()) {
 			log.warning("Essentials not found. Disabling plugin");
 			plugin.onDisable();
 			return;

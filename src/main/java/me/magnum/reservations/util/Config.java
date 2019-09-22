@@ -9,20 +9,20 @@ public class Config extends SimpleConfig {
 
 	public static int next;
 	public static String pre;
-	static String confirmAppt;
 	public static String command;
 	public static String playerConfirm;
 	public static String logConfirm;
-	static String noAppt;
 	public static String noMakeOther;
 	public static String noCancelOther;
 	public static String hasAppt;
-	static String format;
-	static String waiting;
 	public static String canceled;
 	public static String hasNoApt;
 	public static String aptUpdate;
 	public static int remindDelay;
+	static String confirmAppt;
+	static String noAppt;
+	static String format;
+	static String waiting;
 
 	private Config (String fileName) {
 		super(fileName, Reservations.getPlugin());
@@ -36,6 +36,10 @@ public class Config extends SimpleConfig {
 				" " + fileName + " from jar to browse the default values.",
 				"--------------------------------------------------------"
 		});
+	}
+
+	public static void init () {
+		new Config("config.yml").onLoad();
 	}
 
 	private void onLoad () {
@@ -58,9 +62,5 @@ public class Config extends SimpleConfig {
 		canceled = getString("messages.canceled");
 		aptUpdate = getString("messages.update-apt");
 		hasNoApt = getString("messages.no-appointments");
-	}
-
-	public static void init () {
-		new Config("config.yml").onLoad();
 	}
 }

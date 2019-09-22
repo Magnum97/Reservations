@@ -9,20 +9,20 @@ import me.magnum.lib.Common;
 import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -95,6 +95,7 @@ public class DataWorks {
 		}
 	}
 
+	@Nullable
 	@SuppressWarnings("deprecation")
 	private OfflinePlayer getPlayer (String player) {
 		OfflinePlayer offlinePlayer = getOfflinePlayer(player);
@@ -183,13 +184,30 @@ public class DataWorks {
 		for (Appointment a : dropIn) {
 			Essentials essentials = Reservations.getEss();
 			User user = essentials.getUser(UUID.fromString(a.getPlayerId()));
-			String name = user.getDisplayName();
-			Common.tell(sender, pre + cfg.getString("list-format")
-					.replace("\\n", System.getProperty("line.separator") + pre)
-					.replace("#", String.valueOf(a.getNumber()))
-					.replace("%player%", name)
-					.replace("%time%", dtf.format(a.getTime()))
-					.replace("%reason%", a.getReason()));
+			String time = dtf.format(a.getTime());
+			String nick = user.getDisplayName();
+			String ign = user.getName();
+			TextComponent base = new TextComponent();
+			TextComponent hover = new TextComponent("Click to msg" + System.getProperty("line.separator") + ign);
+			String click = "/w " + user.getName() + " ";
+			base.setText(
+					ChatColor.translateAlternateColorCodes('&', pre + cfg.getString("list-format")
+							.replace("\\n", System.getProperty("line.separator") + pre)
+							.replace("#", String.valueOf(a.getNumber()))
+							.replace("%player%", nick)
+							.replace("%time%", time)
+							.replace("%reason%", a.getReason())));
+
+			if (!(sender instanceof Player)) {
+				sender.spigot().sendMessage(base);
+			}
+			else {
+				HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create());
+				ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, click);
+				base.setHoverEvent(hoverEvent);
+				base.setClickEvent(clickEvent);
+				sender.spigot().sendMessage(base);
+			}
 		}
 	}
 
@@ -213,38 +231,38 @@ public class DataWorks {
 		Essentials essentials = Reservations.getEss();
 		User user;
 
-		TextComponent baseMessage = new TextComponent();
-		TextComponent hoverMessage = new TextComponent();
-		HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage).create());
-		TextComponent copyText = new TextComponent();
-		String jsonName;
 		for (Appointment a : appointmentList) {
+			TextComponent baseMessage = new TextComponent();
+			TextComponent hoverMessage = new TextComponent();
+			String copyText;
+			String jsonName;
 			user = essentials.getUser(UUID.fromString(a.getPlayerId()));
 			String player = user.getDisplayName();
 			String ign = user.getName();
 			LocalTime apptTime = a.getTime();
 			String time = apptTime.format(dtf);
-			jsonName = user.getDisplayName();
-			baseMessage.setText(pre + "Time: " + time + " Name: " + player
-					.replace("\\n", "\n")
-					.replace("%time%", time)
-					.replace("%player%", player)
-					.replace("%reason", a.getReason()));
+			baseMessage.setText(
+
+					ChatColor.translateAlternateColorCodes('&', pre + "Time: " + time + " Name: " + player
+							.replace("\\n", "\n")
+							.replace("%time%", time)
+							.replace("%player%", player)
+							.replace("%reason", a.getReason()))
+			);
 			hoverMessage.setText("§eClick to message\n§f" + user.getName());
-			copyText.setText("/w " + user.getName());
+			copyText = "/w " + user.getName() + " ";
 			if (!(sender instanceof Player)) {
 				sender.spigot().sendMessage(baseMessage);
 			}
 			else {
+				HoverEvent hoverItem = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage).create());
+				ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, copyText);
+				jsonName = user.getDisplayName();
+
+				baseMessage.setClickEvent(clickEvent);
 				baseMessage.setHoverEvent(hoverItem);
 				sender.spigot().sendMessage(baseMessage);
 			}
-			// Common.tell(sender, pre + "Time: " + time + " Name: " + player
-			// 		.replace("\\n", "\n")
-			// 		.replace("%time%", time)
-			// 		.replace("%player%", player)
-			// 		.replace("%reason", a.getReason())
-			// );
 		}
 	}
 
@@ -386,7 +404,7 @@ public class DataWorks {
 		onlineVets.remove(player);
 	}
 
-	private String to24HourTime (String input) {
+	private String to24HourTime (@NotNull String input) {
 		if (input.length() < 5) {
 			return "0" + input;
 		}
@@ -421,7 +439,7 @@ public class DataWorks {
 	 * @return
 	 */
 	@Deprecated
-	private LocalDateTime getTime (String time) {
+	private LocalDateTime getTime (@NotNull String time) {
 		LocalTime midnight = LocalTime.MIDNIGHT;
 		LocalDate today = LocalDate.now(ZoneId.of("US/Eastern"));
 		LocalDateTime lastMidnight = LocalDateTime.of(today, midnight);
@@ -462,7 +480,7 @@ public class DataWorks {
 		appointmentList.remove(appointment);
 	}
 
-	public void updateApt (Appointment appointment, String newTime, String reason) {
+	public void updateApt (@NotNull Appointment appointment, String newTime, String reason) {
 		appointment.setTime(parseTime(newTime));
 		appointment.setReason(reason);
 	}
@@ -478,7 +496,7 @@ public class DataWorks {
 		var minuteMilli = TimeUnit.MINUTES.toMillis(1);
 
 		appointmentList.forEach(a -> {
-			if ( (now-a.getCreated())> minuteMilli*30) {
+			if ((now - a.getCreated()) > minuteMilli * 30) {
 				toRemove.add(a);
 			}
 		});

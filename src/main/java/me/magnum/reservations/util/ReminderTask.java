@@ -6,7 +6,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static me.magnum.reservations.util.Config.pre;
 import static me.magnum.reservations.util.Config.waiting;
-import static me.magnum.reservations.util.DataWorks.*;
+import static me.magnum.reservations.util.DataWorks.dropIn;
+import static me.magnum.reservations.util.DataWorks.onlineVets;
 
 public class ReminderTask extends BukkitRunnable {
 
