@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalTime;
 
 @Getter
@@ -14,17 +15,17 @@ public class Appointment implements Serializable, Comparable <Appointment> {
 	String reason;
 	String playerId;
 	int number;
-	long created;
+	Instant created;
 
 	public Appointment () {
-		created = System.currentTimeMillis();
+		created = Instant.now();
 	}
 
 	public Appointment (LocalTime time, String playerId, String reason) {
 		this.playerId = playerId;
 		this.time = time;
 		this.reason = reason;
-		created = System.currentTimeMillis();
+		created = Instant.now();
 	}
 
 	public Appointment (LocalTime time, String playerId, String reason, int number) {
@@ -32,7 +33,7 @@ public class Appointment implements Serializable, Comparable <Appointment> {
 		this.reason = reason;
 		this.playerId = playerId;
 		this.number = number;
-		created = System.currentTimeMillis();
+		created = Instant.now();
 	}
 
 	@Override

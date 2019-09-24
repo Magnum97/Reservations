@@ -1,7 +1,7 @@
 plugin-prefix: "&7[&dReservations&7] "
 baseCommand: "reservation"
-list-format: "&6Number: &e # &6Client: &a %player% \n&fWaiting since: %time%"
-appt-format: "" #todo add list formatting
+list-format: "&6Number: &e # &6Client: &a %player% \n&fWaiting for: %time%"
+appt-format: "&fTime: &e%time% Client: &a %player%" #todo add list formatting
 # Remind permission reservations.notify every x seconds is players are on the /reservation list
 reminder-delay: 60
 # How long in minutes to keep old appointments before clearing from list

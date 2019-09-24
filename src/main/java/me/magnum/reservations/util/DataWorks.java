@@ -4,6 +4,8 @@ import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.sun.javafx.binding.StringFormatter;
+import javafx.util.converter.LocalDateTimeStringConverter;
 import lombok.var;
 import me.magnum.lib.Common;
 import me.magnum.lib.SimpleConfig;
@@ -23,9 +25,11 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
@@ -181,17 +185,20 @@ public class DataWorks {
 		dropIn.sort(Appointment::compareTo);
 		String pattern = "HH:mm";
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+		TimeUnit seconds;
+		TimeUnit minutes;
+		TimeUnit hours;
+		var tu = new TimeUtil();
 		for (Appointment a : dropIn) {
 			Essentials essentials = Reservations.getEss();
 			User user = essentials.getUser(UUID.fromString(a.getPlayerId()));
-			String time = dtf.format(a.getTime());
+			String time = tu.getWaitTime(a.getCreated());
 			String nick = user.getDisplayName();
 			String ign = user.getName();
 			TextComponent base = new TextComponent();
 			TextComponent hover = new TextComponent("Click to msg" + System.getProperty("line.separator") + ign);
 			String click = "/w " + user.getName() + " ";
-			base.setText(
-					ChatColor.translateAlternateColorCodes('&', pre + cfg.getString("list-format")
+			base.setText(ChatColor.translateAlternateColorCodes('&', pre + cfg.getString("list-format")
 							.replace("\\n", System.getProperty("line.separator") + pre)
 							.replace("#", String.valueOf(a.getNumber()))
 							.replace("%player%", nick)
@@ -243,7 +250,7 @@ public class DataWorks {
 			String time = apptTime.format(dtf);
 			baseMessage.setText(
 
-					ChatColor.translateAlternateColorCodes('&', pre + "Time: " + time + " Name: " + player
+					ChatColor.translateAlternateColorCodes('&', pre + cfg.getString("appt-format")
 							.replace("\\n", "\n")
 							.replace("%time%", time)
 							.replace("%player%", player)
@@ -492,23 +499,15 @@ public class DataWorks {
 			return;
 		}
 		List <Appointment> toRemove = new ArrayList <>();
-		var now = System.currentTimeMillis();
-		var minuteMilli = TimeUnit.MINUTES.toMillis(1);
+		var now = Instant.now();
 
 		appointmentList.forEach(a -> {
-			if ((now - a.getCreated()) > minuteMilli * 30) {
+			var duration = Duration.between(a.getCreated(), now);
+			if (duration.toHours() > 24) {
 				toRemove.add(a);
 			}
 		});
 		toRemove.forEach(a -> appointmentList.remove(a));
-		//
-		// for (Appointment a : appointmentList) {
-		// 	LocalDateTime lt = LocalDateTime.now();
-		// 	if (a.getTime().isBefore(lt.minusMinutes(30))) {
-		// 		toRemove.add(a);
-		// 	}
-		// }
-		// toRemove.forEach(a -> appointmentList.remove(a));
 	}
 
 	public void closeData () {
