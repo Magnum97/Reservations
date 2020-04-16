@@ -1,7 +1,7 @@
 # This workflow will create a release on v-tag push
 
 name: Create release
-descriptiom: create a release on v-tag push
+#descriptiom: "create a release on v-tag push"
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
@@ -23,3 +23,6 @@ jobs:
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          # TODO Edit body with changelog before pushing tags.
+          body: |
+            This is a changelog

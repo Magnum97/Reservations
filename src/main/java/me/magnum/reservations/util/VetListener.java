@@ -1,6 +1,5 @@
 package me.magnum.reservations.util;
 
-import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,13 +7,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import static me.magnum.reservations.util.Config.pre;
-import static me.magnum.reservations.util.Config.waiting;
+import org.mineacademy.fo.Common;
 import static me.magnum.reservations.util.DataWorks.walkIns;
 
 public class VetListener implements Listener {
-	
+	private final Reservations plugin = Reservations.getPlugin();
+	private SimpleConfig cfg = plugin.getCfg();
+	private String pre = cfg.getString("plugin-prefix");
 	private DataWorks dw = new DataWorks();
 	
 	@EventHandler
@@ -26,7 +25,7 @@ public class VetListener implements Listener {
 				BukkitRunnable notice = new BukkitRunnable() {
 					@Override
 					public void run () {
-						Common.tell(event.getPlayer(), pre + waiting);
+						Common.tell(event.getPlayer(), pre + cfg.getString("messages.waiting"));
 					}
 				};
 				notice.runTaskLater(Reservations.getPlugin(), 20 * 10);

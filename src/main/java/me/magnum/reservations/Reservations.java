@@ -3,36 +3,35 @@ package me.magnum.reservations;
 import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.CommandReplacements;
 import lombok.Getter;
-import me.magnum.lib.Common;
-import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.commands.Reservation;
 import me.magnum.reservations.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-
-import static me.magnum.reservations.util.Config.command;
+import org.mineacademy.fo.Common;
 
 public final class Reservations extends JavaPlugin {
-	
+
 	@Getter
 	public static Reservations plugin;
-	@Getter
-	public static SimpleConfig cfg;
 	@Getter
 	public BukkitCommandManager commandManager;
 	private CommandReplacements commands;
 	private BukkitScheduler bs = Bukkit.getScheduler();
-	
-	@SuppressWarnings("deprecation")
+	@Getter
+	private SimpleConfigManager manager;
+	@Getter
+	private SimpleConfig cfg;
+
+	@SuppressWarnings ("deprecation")
 	@Override
 	public void onEnable () {
 		plugin = this;
 		ReminderTask reminder = new ReminderTask();
-		Common.setInstance(plugin);
 		Common.log("Loading Config...");
-		cfg = new SimpleConfig("config.yml",plugin);
-		Config.init();
+		manager = new SimpleConfigManager(plugin);
+//		cfg = new Config();
+		cfg = manager.getNewConfig("config.yml",true);
 		Common.log("Initializing command manager...");
 		commandManager = new BukkitCommandManager(this);
 		commands = commandManager.getCommandReplacements();
@@ -40,16 +39,16 @@ public final class Reservations extends JavaPlugin {
 		Common.log("Registering commands");
 		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
 		bs.runTaskLater(plugin, reminder, 20 * 10);
-		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * Config.remindDelay);
+		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * cfg.getInt("reminder-delay"));
 	}
-	
-	@SuppressWarnings("deprecation")
+
+	@SuppressWarnings ("deprecation")
 	private void registerCommands () {
 		commandManager.enableUnstableAPI("help");
-		commands.addReplacement("command", command);
+		commands.addReplacement("command", cfg.getString("baseCommand"));
 		commandManager.registerCommand(new Reservation());
 	}
-	
+
 	@Override
 	public void onDisable () {
 		DataWorks dw = new DataWorks();
