@@ -25,4 +25,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # TODO Edit body with changelog before pushing tags.
           body: |
-            This is a changelog
+            * Add workflow to build and upload artifact
+            * Add artifacts to new github release
+
