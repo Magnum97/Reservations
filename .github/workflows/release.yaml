@@ -5,7 +5,7 @@ name: Gradle Package
 
 on:
   release:
-    types: [created]
+    types: [published, created, edited]
 
 jobs:
   generate:
@@ -17,7 +17,8 @@ jobs:
       - name: Generate the artifacts
         uses: skx/github-action-build@master
         with:
-          builder: ${{ github.workspace }}/build.gradle
+          builder: ${{ github.home }}/build.gradle
+#          builder: ${{ github.home }}/build.gradle
 
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
