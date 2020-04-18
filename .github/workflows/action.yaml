@@ -20,6 +20,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
+      - name: Generate the artifacts
+        uses: skx/github-action-build@master
+        with:
+          builder: ${{ github.home }}/build.gradle
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -27,4 +31,5 @@ jobs:
           body: |
             * Add workflow to build and upload artifact
             * Add artifacts to new github release
+          files: ${{ github.workspace }}/build/lib/Reservations.jar
 
