@@ -21,9 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Generate the artifacts
-        uses: skx/github-action-build@master
+      - uses: eskatos/gradle-command-action@v1
         with:
-          builder: ${{ github.home }}/build.gradle
+          arguments: build
       - uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
