@@ -19,7 +19,8 @@ jobs:
 #          ./gradlew build
       - name: Build project
         uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
-          with: build
+          with:
+            args: build
       - name: "Upload artifact"
         uses: actions/upload-artifact@v1
         with:
