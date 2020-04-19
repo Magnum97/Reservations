@@ -30,4 +30,4 @@ jobs:
           # TODO Edit body with changelog before pushing tags.
           body: |
             This is a changelog
-          files: build/libs/
+          files: Reservations:build/libs/
