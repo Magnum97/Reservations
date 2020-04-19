@@ -33,7 +33,7 @@ compileJava {
 
 shadowJar {
 //    archiveFileName = ${archivesBaseName}.${archiveExtension}
-    version = null
+//    version = null
     classifier = null
     minimize()
 }
