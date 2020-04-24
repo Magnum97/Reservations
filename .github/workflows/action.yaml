@@ -6,7 +6,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: $GITHUB_WORKSPACE
+#    working-directory: $GITHUB_WORKSPACE
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,9 +30,9 @@ jobs:
 #        with:
 #          args: 'build/libs/*'
       - id: PWD
-        run: pwd
-      - id: List
-        run: ls '-lX'
+        run: echo WD $PWD
+      - id: GWD
+        run: echo $GITHUB_WORKSPACE
 #      - name: Send file JAR to discord channel
 #        uses: sinshutu/upload-to-discord@master
 #        env:
