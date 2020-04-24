@@ -5,6 +5,7 @@ on:
       - 'master'
 defaults:
   run:
+    shell: bash
     working-directory: $GITHUB_WORKSPACE
 jobs:
   build:
