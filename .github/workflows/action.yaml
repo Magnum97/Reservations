@@ -13,10 +13,12 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
-      - name: Build project
-        uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
-        with:
-          args: build
+
+#      - name: Build project
+#        uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+#        with:
+#          args: shadowJar
+
 #      - name: "Upload artifact"
 #        uses: actions/upload-artifact@v1
 #        with:
