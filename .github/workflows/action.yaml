@@ -30,7 +30,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'build/libs/*'
+          args: $GITHUB_WORKFLOW/build/libs/Reservations-1.2.2.jar
 
 #      - id: GWD
 #        run: >
