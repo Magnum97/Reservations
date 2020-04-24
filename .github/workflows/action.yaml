@@ -14,10 +14,10 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@v2
 
-#      - name: Build project
-#        uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
-#        with:
-#          args: shadowJar
+      - name: Build project
+        uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+        with:
+          args: shadowJar
 
 #      - name: "Upload artifact"
 #        uses: actions/upload-artifact@v1
@@ -31,10 +31,10 @@ jobs:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #        with:
 #          args: 'build/libs/*'
-      - id: PWD
-        run: echo WD $PWD
       - id: GWD
-        run: echo $GITHUB_WORKSPACE
+        run: >
+        echo $GITHUB_WORKSPACE
+        ls
 #      - name: Send file JAR to discord channel
 #        uses: sinshutu/upload-to-discord@master
 #        env:
