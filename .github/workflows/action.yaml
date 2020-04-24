@@ -9,20 +9,18 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
-#      - name: "Setup JDK 1.8"
-#        uses: actions/setup-java@v1
-#        with:
-#          java-version: 8
-#      - name: "Guild with Gradle wrapper"
-#        run: |
-#          chmod +x gradlew
-#          ./gradlew build
       - name: Build project
         uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
         with:
           args: build
-      - name: "Upload artifact"
-        uses: actions/upload-artifact@v1
+#      - name: "Upload artifact"
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: rc-jars
+#          path: build/libs/
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: rc-jars
-          path: build/libs/
+          args: 'build/libs/*'
