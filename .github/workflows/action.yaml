@@ -19,25 +19,27 @@ jobs:
         with:
           args: shadowJar
 
-#      - name: "Upload artifact"
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: rc-jars
-#          path: build/libs/
-#
-#      - name: Upload the artifacts
-#        uses: skx/github-action-publish-binaries@master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          args: 'build/libs/*'
-      - id: GWD
-        run: >
-        echo $GITHUB_WORKSPACE
-        echo $PWD
-#      - name: Send file JAR to discord channel
-#        uses: sinshutu/upload-to-discord@master
-#        env:
-#          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-#        with:
-#          args: build/libs/Reservations-1.2.2.jar
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@v1
+        with:
+          name: rc-jars
+          path: build/libs/
+
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'build/libs/*'
+
+#      - id: GWD
+#        run: >
+#        echo $GITHUB_WORKSPACE
+#        echo $PWD
+
+      - name: Send file JAR to discord channel
+        uses: sinshutu/upload-to-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: $GITHUB_WORKFLOW/build/libs/Reservations-1.2.2.jar
