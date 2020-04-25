@@ -13,6 +13,7 @@ jobs:
     steps:
       - name: "Checkout and build repository"
         uses: actions/checkout@v2
+      - name: "Build shadowjar with gradle"
         uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
         with:
           args: shadowJar
