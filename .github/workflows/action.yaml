@@ -6,24 +6,25 @@ on:
 defaults:
   run:
     shell: bash
-#    working-directory: $GITHUB_WORKSPACE
+    working-directory: $GITHUB_WORKSPACE
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout repository"
+      - name: "Checkout and build repository"
         uses: actions/checkout@v2
-
-      - name: Build project
         uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
         with:
           args: shadowJar
-
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: "Upload artifact"
         uses: actions/upload-artifact@v1
         with:
-          name: rc-jars
-          path: build/libs/
+#          name: RC-JARS
+          path: $GITHUB_WORKSPACE/build/libs/
 
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
