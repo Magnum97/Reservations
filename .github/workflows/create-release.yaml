@@ -19,6 +19,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - uses: actions/checkout@v2
       - name: Build project
         uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
@@ -29,8 +32,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # TODO Edit body with changelog before pushing tags.
           body: |
-            This is a changelog
-          files: Reservations:build/libs/
+            Changelog for ${{ steps.get_version.outputs.VERSION }} :
+            * Remove lombok from dependency list
+            * Add lombok plugin for Gradle
+            * Rename workflow files for easy identification
+            * Cleanup action.yml workflow
+            * Create-release workflow only zips folders
+          files: build/libs/
+#          files: Reservations:build/libs/
+          gzip: folders
 
       - name: Send file JAR to discord channel
         uses: sinshutu/upload-to-discord@master
