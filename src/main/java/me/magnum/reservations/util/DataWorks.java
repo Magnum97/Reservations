@@ -4,11 +4,9 @@ import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.sun.javafx.binding.StringFormatter;
-import javafx.util.converter.LocalDateTimeStringConverter;
+import de.leonhard.storage.Yaml;
 import lombok.var;
 import me.magnum.lib.Common;
-import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.Reservations;
 import me.magnum.reservations.type.Appointment;
 import net.md_5.bungee.api.ChatColor;
@@ -25,28 +23,32 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static me.magnum.reservations.util.Config.*;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class DataWorks {
 
+	// private static List <OfflinePlayer> playerList = new ArrayList <>();
+	private static final Reservations plugin = Reservations.getPlugin();
 	public static List <Player> onlineVets = new ArrayList <>();
 	static List <Appointment> dropIn = new ArrayList <>();
 	private static List <Appointment> appointmentList = new ArrayList <>();
-	// private static List <OfflinePlayer> playerList = new ArrayList <>();
-	private static Reservations plugin = Reservations.getPlugin();
 	private static int next;
-	private File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
-	private File waiting = new File(plugin.getDataFolder() + File.separator + "walkins.json");
-	private Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
-	private SimpleConfig cfg = new SimpleConfig("config.yml", Reservations.getPlugin());
+	private final File aptBook = new File(plugin.getDataFolder() + File.separator + "appointments.json");
+	private final File waiting = new File(plugin.getDataFolder() + File.separator + "walkins.json");
+	private final Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
+	private final Yaml cfg;
+	private final String pre;
+	private final String confirmAppt;
+	private final String noAppt;
 
 	public DataWorks () {
+		cfg = Reservations.getCfg();
+		pre = Reservations.getPre();
+		confirmAppt = cfg.getString("messages.appointment-confirm");
+		noAppt = cfg.getString("messages.no-appts");
 	}
 
 	void onLoad () {
@@ -66,7 +68,7 @@ public class DataWorks {
 			Common.log("&cData file was corrupt or wrongly formatted.", "Could not load waiting list.");
 		}
 		Common.log("Waiting-list loaded",
-		           "Loading Appointments..");
+				"Loading Appointments..");
 		try {
 			Reader reader = new FileReader(aptBook);
 			Appointment[] apli = gson.fromJson(reader, Appointment[].class);
@@ -100,7 +102,7 @@ public class DataWorks {
 	}
 
 	@Nullable
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	private OfflinePlayer getPlayer (String player) {
 		OfflinePlayer offlinePlayer = getOfflinePlayer(player);
 		if (offlinePlayer.hasPlayedBefore()) {
@@ -113,11 +115,11 @@ public class DataWorks {
 		timedClear();
 		String jsonAppt = gson.toJson(appointmentList);
 		String jsonWaiting = gson.toJson(dropIn);
-		cfg.saveConfig();
+		cfg.write();
 		try {
 			FileWriter aptFW = new FileWriter(aptBook.getAbsoluteFile()); // creating fileWriter object with the file
 			BufferedWriter bw = new BufferedWriter(aptFW); // creating bufferWriter which is used to write the content into the file
-			if (!aptBook.exists()) {   // checks whether the file is Exist or not
+			if (! aptBook.exists()) {   // checks whether the file is Exist or not
 				aptBook.createNewFile();   // here if file not exist new file created
 			}
 
@@ -129,7 +131,7 @@ public class DataWorks {
 			e.printStackTrace();
 		}
 		try {
-			if (!waiting.exists()) {
+			if (! waiting.exists()) {
 				waiting.createNewFile();
 			}
 			FileWriter waitingFW = new FileWriter(waiting.getAbsoluteFile());
@@ -155,7 +157,7 @@ public class DataWorks {
 	public String makeAppt (String player, String time, String reason) {
 		String result;
 		OfflinePlayer offlinePlayer = getPlayer(player);
-		if ((offlinePlayer == null) || !offlinePlayer.hasPlayedBefore()) {
+		if ((offlinePlayer == null) || ! offlinePlayer.hasPlayedBefore()) {
 			result = player + " has never logged in to this server."; //todo move to config
 			return result;
 		}
@@ -179,7 +181,7 @@ public class DataWorks {
 	 */
 	public void showWaiting (CommandSender sender) {
 		if (dropIn.size() < 1) {
-			Common.tell(sender, pre + Config.noAppt);
+			Common.tell(sender, pre + noAppt);
 			return;
 		}
 		dropIn.sort(Appointment::compareTo);
@@ -199,13 +201,13 @@ public class DataWorks {
 			TextComponent hover = new TextComponent("Click to msg" + System.getProperty("line.separator") + ign);
 			String click = "/w " + user.getName() + " ";
 			base.setText(ChatColor.translateAlternateColorCodes('&', pre + cfg.getString("list-format")
-							.replace("\\n", System.getProperty("line.separator") + pre)
-							.replace("#", String.valueOf(a.getNumber()))
-							.replace("%player%", nick)
-							.replace("%time%", time)
-							.replace("%reason%", a.getReason())));
+					.replace("\\n", System.getProperty("line.separator") + pre)
+					.replace("#", String.valueOf(a.getNumber()))
+					.replace("%player%", nick)
+					.replace("%time%", time)
+					.replace("%reason%", a.getReason())));
 
-			if (!(sender instanceof Player)) {
+			if (! (sender instanceof Player)) {
 				sender.spigot().sendMessage(base);
 			}
 			else {
@@ -224,7 +226,6 @@ public class DataWorks {
 	 *
 	 * @param sender the sender
 	 */
-	@SuppressWarnings("deprecation")
 	public void showAppointments (CommandSender sender) {
 		if (appointmentList.isEmpty()) {
 			Common.tell(sender, pre + "There are currently no appointments."); // todo verbose and config
@@ -258,7 +259,7 @@ public class DataWorks {
 			);
 			hoverMessage.setText("§eClick to message\n§f" + user.getName());
 			copyText = "/w " + user.getName() + " ";
-			if (!(sender instanceof Player)) {
+			if (! (sender instanceof Player)) {
 				sender.spigot().sendMessage(baseMessage);
 			}
 			else {
@@ -286,7 +287,7 @@ public class DataWorks {
 	 * @param reason the reason
 	 * @return the string
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	public String takeNumber (String player, String reason) {
 		String playerId;
 		String result;
@@ -325,7 +326,7 @@ public class DataWorks {
 	 * @param player the player
 	 * @return the boolean
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	public boolean checkNumber (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
 		String playerId = p.getUniqueId().toString();
@@ -338,7 +339,7 @@ public class DataWorks {
 	 * @param player the player
 	 * @return the boolean
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	public boolean hasApt (String player) {
 		OfflinePlayer p = getOfflinePlayer(player);
 		String playerId = p.getUniqueId().toString();
@@ -470,7 +471,7 @@ public class DataWorks {
 		return tt;
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	public Appointment getApt (String player) throws IllegalAccessException {
 		String pid = getOfflinePlayer(player).getUniqueId().toString();
 		int i = 0;

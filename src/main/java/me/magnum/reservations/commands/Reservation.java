@@ -3,10 +3,10 @@ package me.magnum.reservations.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
+import de.leonhard.storage.Yaml;
 import me.magnum.lib.CheckSender;
 import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
-import me.magnum.reservations.util.Config;
 import me.magnum.reservations.util.DataWorks;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -14,14 +14,32 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
-import static me.magnum.reservations.util.Config.*;
 import static me.magnum.reservations.util.DataWorks.onlineVets;
 
 @CommandAlias ("%command")
 public class Reservation extends BaseCommand {
 
+	private final Yaml cfg;
+	private final String pre;
+	private final String noMakeOther;
+	private final String noCancelOther;
+	private final String aptUpdate;
+	private final String hasAppt;
+	private final String logConfirm;
+	private final String hasNoApt;
+	private final String canceled;
 
 	public Reservation () {
+		cfg = Reservations.getCfg();
+		pre = Reservations.getPre();
+		noMakeOther = cfg.getString("messages.no-permission");
+		aptUpdate = cfg.getString("messages.update-apt");
+		hasAppt = cfg.getString("messages.has-appt");
+		hasNoApt = cfg.getString("messages.no-appointments");
+		logConfirm = cfg.getString("messages.log-confirm");
+		canceled = cfg.getString("messages.canceled");
+		noCancelOther = cfg.getString("messages.no-cancel-other");
+
 	}
 
 	@Subcommand ("make|call")
@@ -45,7 +63,7 @@ public class Reservation extends BaseCommand {
 		String result;
 		if (sender instanceof Player) {
 			if ((! (sender.hasPermission("reservations.make.others"))) && (! (sender.getName().equalsIgnoreCase(player)))) {
-				Common.tell(sender, pre + Config.noMakeOther);
+				Common.tell(sender, pre + noMakeOther);
 				return;
 			}
 		}
@@ -72,7 +90,7 @@ public class Reservation extends BaseCommand {
 			((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0F, 1.0F);
 		}
 		if (dw.checkNumber(player)) {
-			Common.tell(sender, pre + Config.hasAppt);
+			Common.tell(sender, pre + hasAppt);
 			return;
 		}
 		result = dw.takeNumber(player, reason);
@@ -81,7 +99,7 @@ public class Reservation extends BaseCommand {
 		}
 		Common.tell(sender, pre + result);
 		Common.setInstance(Reservations.getPlugin());
-		Common.log(Config.logConfirm.replaceAll("%player%", player));
+		Common.log(logConfirm.replaceAll("%player%", player));
 		ArrayList <String> vets = new ArrayList <>();
 		for (Player vet : onlineVets) {
 			vets.add(vet.getName());
@@ -148,7 +166,7 @@ public class Reservation extends BaseCommand {
 		}
 		if (CheckSender.isPlayer(sender)) {
 			if ((! (sender.hasPermission("reservations.make.others"))) && (! (sender.getName().equalsIgnoreCase(player)))) {
-				Common.tell(sender, pre + Config.noCancelOther);
+				Common.tell(sender, pre + noCancelOther);
 				return;
 			}
 		}

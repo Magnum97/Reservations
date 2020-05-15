@@ -2,20 +2,17 @@ package me.magnum.reservations;
 
 import co.aikar.commands.BukkitCommandManager;
 import com.earth2me.essentials.Essentials;
+import de.leonhard.storage.Yaml;
 import lombok.Getter;
 import lombok.var;
-import me.magnum.lib.Common;
-import me.magnum.lib.SimpleConfig;
 import me.magnum.reservations.commands.Reservation;
-import me.magnum.reservations.util.Config;
 import me.magnum.reservations.util.DataWorks;
 import me.magnum.reservations.util.ReminderTask;
 import me.magnum.reservations.util.VetListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
-
-import static me.magnum.reservations.util.Config.command;
 
 public final class Reservations extends JavaPlugin {
 
@@ -24,22 +21,26 @@ public final class Reservations extends JavaPlugin {
 	@Getter
 	private static Reservations plugin;
 	@Getter
+	private static Yaml cfg;
+	@Getter
+	private static String pre;
+	private final BukkitScheduler bs = Bukkit.getScheduler();
+	@Getter
 	private BukkitCommandManager commandManager;
-	private BukkitScheduler bs = Bukkit.getScheduler();
 
 	@Override
 	public void onEnable () {
 		plugin = this;
 		var log = plugin.getLogger();
-		Common.setInstance(plugin);
-		if (!hasEssentials()) {
+		cfg = new Yaml("config.yml", plugin.getDataFolder().toString(), plugin.getResource("config.yml"));
+		log.info("Loading Config...");
+		cfg.write();
+		cfg.getOrSetDefault("plugin-prefix", "VetAssist");
+		if (! hasEssentials()) {
 			log.warning("Essentials not found. Disabling plugin");
-			plugin.onDisable();
+			getServer().getPluginManager().disablePlugin(plugin);
 			return;
 		}
-		log.info("Loading Config...");
-		var config = new SimpleConfig("config.yml", plugin);
-		Config.init();
 		log.info("Initializing command manager...");
 		registerCommands();
 		log.info("Registering command...");
@@ -63,28 +64,30 @@ public final class Reservations extends JavaPlugin {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	private void setupEvents () {
-		var reminder = new ReminderTask();
+		BukkitRunnable reminder = new ReminderTask();
 		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
-		bs.runTaskLater(plugin, reminder, 20 * 10);
-		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * Config.remindDelay);
+//		reminder.runTaskLater(plugin, 20 * 5);
+//		bs.runTaskLater(plugin, reminder, 20 * 3); //todo shortened for testing
+		reminder.runTaskTimerAsynchronously(plugin, 20 * 3, 20 * cfg.getOrSetDefault("reminder-delay", 60));
+//		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * cfg.getOrSetDefault("reminder-delay", 60));
 
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings ("deprecation")
 	private void registerCommands () {
 		commandManager = new BukkitCommandManager(plugin);
 		var commands = commandManager.getCommandReplacements();
 		commandManager.enableUnstableAPI("help");
-		commands.addReplacement("command", command);
+		commands.addReplacement("command", cfg.getOrDefault("baseCommand", "apt"));
 		commandManager.registerCommand(new Reservation());
 	}
 
 	@Override
 	public void onDisable () {
 		var dw = new DataWorks();
-		bs.cancelAllTasks();
+		bs.cancelTasks(plugin);
 		dw.closeData();
 	}
 }

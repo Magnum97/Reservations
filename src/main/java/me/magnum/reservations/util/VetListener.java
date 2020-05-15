@@ -1,7 +1,7 @@
 package me.magnum.reservations.util;
 
-import me.magnum.lib.Common;
 import me.magnum.reservations.Reservations;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,13 +9,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import static me.magnum.reservations.util.Config.pre;
-import static me.magnum.reservations.util.Config.waiting;
 import static me.magnum.reservations.util.DataWorks.dropIn;
 
 public class VetListener implements Listener {
 
-	private DataWorks dw = new DataWorks();
+	private final String pre = Reservations.getPre();
+	private final String waiting = Reservations.getCfg().getString("messages.waiting");
+	private final DataWorks dw = new DataWorks();
 
 	@EventHandler
 	public void onJoin (PlayerJoinEvent event) {
@@ -26,7 +26,8 @@ public class VetListener implements Listener {
 				BukkitRunnable notice = new BukkitRunnable() {
 					@Override
 					public void run () {
-						Common.tell(event.getPlayer(), pre + waiting);
+						event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&',
+								pre + waiting));
 					}
 				};
 				notice.runTaskLater(Reservations.getPlugin(), 20 * 10);
@@ -36,8 +37,8 @@ public class VetListener implements Listener {
 
 	@EventHandler
 	public void onQuit (PlayerQuitEvent event) {
-		dw.removeVet(event.getPlayer());
-
+		if (event.getPlayer().hasPermission("horserpg.vet"))
+			dw.removeVet(event.getPlayer());
 	}
 
 }

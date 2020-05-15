@@ -23,19 +23,50 @@ mainClassName = 'me.magnum.reservations.Reservations'
 // See https://github.com/EntryPointKR/Spigradle#repositories for repository shortcodes
 repositories {
     paper()
-    enderZone()
+    spigot()
+    essentialsX()
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     mavenCentral()
     jitpack() // For vault
+    mavenLocal()
 }
 
 dependencies {
-    paper()
-    essentialsX()
-//    compileOnly 'com.HakYazilim.horserpg:HorseRPGv3:3.0.1'
+    compileOnly paper('1.15.2-R0.1-SNAPSHOT')
+    compileOnly spigot('1.15.2-R0.1-SNAPSHOT')
+    compileOnly essentialsX('2.17.2')
+    compileOnly 'io.apexcreations:HorseRPG:3.1.15'
+    compile 'me.magnum.lib:Common:1.0.0'
     implementation 'com.github.magnum97:LightningStorage:-SNAPSHOT'
     shadow 'fr.minuskube.inv:smart-invs:1.2.6'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
+spigot {
+    authors = ['Magnum1997']
+    depends = ['Essentials']
+//    depends = ['Essentials', 'HorseRPG']
+//    softDepends = ['HorseRPG']
+    apiVersion = '1.15'
+    load = STARTUP
+    commands {
+        give {
+            aliases = ['vai']
+            description = 'Main command'
+            usage = '/<command>'
+        }
+    }
+    permissions {
+        'test.foo' {
+            description = 'Allows foo command'
+            defaults = 'true'
+        }
+        'test.*' {
+            description = 'Wildcard permission'
+            defaults = 'op'
+            children = ['test.foo': true]
+        }
+    }
 }
 
 compileJava {
