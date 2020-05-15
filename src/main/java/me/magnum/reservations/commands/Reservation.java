@@ -17,18 +17,18 @@ import java.util.ArrayList;
 import static me.magnum.reservations.util.Config.*;
 import static me.magnum.reservations.util.DataWorks.onlineVets;
 
-@CommandAlias("%command")
+@CommandAlias ("%command")
 public class Reservation extends BaseCommand {
 
 
 	public Reservation () {
 	}
 
-	@Subcommand("make|call")
-	@Description("Make a reservation and get a number")
-	@CommandCompletion("@players")
-	@CommandPermission("reservations.make.self")
-	public void onMake (CommandSender sender, @Default("") String player, @Default("") String time, @Default("") String reason) throws IllegalAccessException {
+	@Subcommand ("make|call")
+	@Description ("Make a reservation and get a number")
+	@CommandCompletion ("@players")
+	@CommandPermission ("reservations.make.self")
+	public void onMake (CommandSender sender, @Default ("") String player, @Default ("") String time, @Default ("") String reason) throws IllegalAccessException {
 		if (CheckSender.isCommand(sender)) {
 			return;
 		}
@@ -44,13 +44,13 @@ public class Reservation extends BaseCommand {
 		DataWorks dw = new DataWorks();
 		String result;
 		if (sender instanceof Player) {
-			if ((!(sender.hasPermission("reservations.make.others"))) && (!(sender.getName().equalsIgnoreCase(player)))) {
+			if ((! (sender.hasPermission("reservations.make.others"))) && (! (sender.getName().equalsIgnoreCase(player)))) {
 				Common.tell(sender, pre + Config.noMakeOther);
 				return;
 			}
 		}
 		if (time.length() > 0) {
-			if (!time.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](\\b|[a|p])")) {
+			if (! time.matches("^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](\\b|[a|p])")) {
 				// getCurrentCommandManager().generateCommandHelp("make");
 				Common.tell(sender, pre + time + "&e is not a valid time."
 						, pre + "&bPlease format time:&e HH:mm &bYou can use 24 hour time or 12 hour with &ea&7/&ep&b"
@@ -69,7 +69,7 @@ public class Reservation extends BaseCommand {
 			}
 		}
 		if (sender instanceof Player) {
-			((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
+			((Player) sender).playSound(((Player) sender).getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0F, 1.0F);
 		}
 		if (dw.checkNumber(player)) {
 			Common.tell(sender, pre + Config.hasAppt);
@@ -85,26 +85,27 @@ public class Reservation extends BaseCommand {
 		ArrayList <String> vets = new ArrayList <>();
 		for (Player vet : onlineVets) {
 			vets.add(vet.getName());
-			vet.playSound(vet.getLocation(), Sound.BLOCK_NOTE_BELL, 1.0F, 1.0F);
-			Common.tell(vet, pre + Config.playerConfirm.replaceAll("%player%", player));
+			vet.playSound(vet.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0F, 1.0F);
+			Common.tell(vet, pre + Reservations.getCfg()
+					.getString("messages.player-confirm").replaceAll("%player%", player));
 		}
 		if (sender instanceof Player) { //todo change to config based message.
 			Common.tell(sender, pre + "There are " + onlineVets.size() + " vets online right now:",
-			            "&9 " + vets);
+					"&9 " + vets);
 		}
 	}
 
-	@Subcommand("view|list")
-	@Description("View current reservations")
-	@CommandPermission("reservations.view")
-	public void onView (CommandSender sender, @Default("all") String type) {
+	@Subcommand ("view|list")
+	@Description ("View current reservations")
+	@CommandPermission ("reservations.view")
+	public void onView (CommandSender sender, @Default ("all") String type) {
 		if (CheckSender.isCommand(sender)) {
 			return;
 		}
 		if (type.equalsIgnoreCase("help")) {
 			Common.tell(sender,
-			            pre + "Command useage: &e/va view [all | waiting | apt]",
-			            pre + "To list all, only waiting, or only scheduled appointments.");
+					pre + "Command useage: &e/va view [all | waiting | apt]",
+					pre + "To list all, only waiting, or only scheduled appointments.");
 			return;
 		}
 		DataWorks dw = new DataWorks();
@@ -118,19 +119,19 @@ public class Reservation extends BaseCommand {
 		}
 	}
 
-	@Subcommand("clear")
-	@Description("Clear a reservation from the list")
-	@CommandPermission("reservations.clear")
+	@Subcommand ("clear")
+	@Description ("Clear a reservation from the list")
+	@CommandPermission ("reservations.clear")
 	public void onClear (CommandSender sender, int key) {
 		DataWorks dw = new DataWorks();
 		String result = dw.clear(key);
 		Common.tell(sender, pre + result);
 	}
 
-	@Subcommand("cancel")
-	@Description("Cancel an appointment")
-	@CommandPermission("reservations.cancel.self")
-	public void onCancel (CommandSender sender, @Default("") String player) throws IllegalAccessException {
+	@Subcommand ("cancel")
+	@Description ("Cancel an appointment")
+	@CommandPermission ("reservations.cancel.self")
+	public void onCancel (CommandSender sender, @Default ("") String player) throws IllegalAccessException {
 		if (CheckSender.isCommand(sender)) {
 			return;
 		}
@@ -146,7 +147,7 @@ public class Reservation extends BaseCommand {
 			}
 		}
 		if (CheckSender.isPlayer(sender)) {
-			if ((!(sender.hasPermission("reservations.make.others"))) && (!(sender.getName().equalsIgnoreCase(player)))) {
+			if ((! (sender.hasPermission("reservations.make.others"))) && (! (sender.getName().equalsIgnoreCase(player)))) {
 				Common.tell(sender, pre + Config.noCancelOther);
 				return;
 			}
@@ -161,10 +162,10 @@ public class Reservation extends BaseCommand {
 		}
 	}
 
-	@Subcommand("wipe")
-	@Description("Wipe the list clean baby!")
-	@CommandPermission("reservations.clear.all")
-	public void onWipe (CommandSender sender, @Default("") String confirm) {
+	@Subcommand ("wipe")
+	@Description ("Wipe the list clean baby!")
+	@CommandPermission ("reservations.clear.all")
+	public void onWipe (CommandSender sender, @Default ("") String confirm) {
 		// if (confirm == null) {
 		// 	confirm = "";
 		// }
@@ -175,7 +176,7 @@ public class Reservation extends BaseCommand {
 		}
 		else {
 			Common.tell(sender, pre + "&cYou are about to clear the list.",
-			            pre + "&eTo confirm add &6confirm&e after the command.");
+					pre + "&eTo confirm add &6confirm&e after the command.");
 		}
 	}
 
