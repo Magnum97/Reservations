@@ -51,7 +51,7 @@ public class DataWorks {
 		noAppt = cfg.getString("messages.no-appts");
 	}
 
-	void onLoad () {
+	public void onLoad () {
 		Common.log("Getting next appointment");
 		Common.log("Loading waiting list...");
 		try {
@@ -207,16 +207,14 @@ public class DataWorks {
 					.replace("%time%", time)
 					.replace("%reason%", a.getReason())));
 
-			if (! (sender instanceof Player)) {
-				sender.spigot().sendMessage(base);
-			}
-			else {
+			if (sender instanceof Player) {
 				HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create());
 				ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, click);
 				base.setHoverEvent(hoverEvent);
 				base.setClickEvent(clickEvent);
-				sender.spigot().sendMessage(base);
 			}
+			else
+				sender.spigot().sendMessage(base);
 		}
 	}
 

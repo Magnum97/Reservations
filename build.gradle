@@ -48,14 +48,17 @@ spigot {
 //    depends = ['Essentials', 'HorseRPG']
 //    softDepends = ['HorseRPG']
     apiVersion = '1.15'
-    load = STARTUP
+//    load = STARTUP
+/*
     commands {
         give {
-            aliases = ['vai']
+            aliases = ['reservations']
             description = 'Main command'
             usage = '/<command>'
         }
     }
+*/
+/*
     permissions {
         'test.foo' {
             description = 'Allows foo command'
@@ -67,6 +70,7 @@ spigot {
             children = ['test.foo': true]
         }
     }
+*/
 }
 
 compileJava {

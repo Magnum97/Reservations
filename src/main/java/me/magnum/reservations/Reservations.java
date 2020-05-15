@@ -5,6 +5,7 @@ import com.earth2me.essentials.Essentials;
 import de.leonhard.storage.Yaml;
 import lombok.Getter;
 import lombok.var;
+import me.magnum.lib.Common;
 import me.magnum.reservations.commands.Reservation;
 import me.magnum.reservations.util.DataWorks;
 import me.magnum.reservations.util.ReminderTask;
@@ -31,11 +32,10 @@ public final class Reservations extends JavaPlugin {
 	@Override
 	public void onEnable () {
 		plugin = this;
+		Common.setInstance(plugin);
 		var log = plugin.getLogger();
-		cfg = new Yaml("config.yml", plugin.getDataFolder().toString(), plugin.getResource("config.yml"));
 		log.info("Loading Config...");
-		cfg.write();
-		cfg.getOrSetDefault("plugin-prefix", "VetAssist");
+		setupConfig();
 		if (! hasEssentials()) {
 			log.warning("Essentials not found. Disabling plugin");
 			getServer().getPluginManager().disablePlugin(plugin);
@@ -54,6 +54,15 @@ public final class Reservations extends JavaPlugin {
 		}
 	}
 
+	private void setupConfig () {
+		cfg = new Yaml("config.yml", plugin.getDataFolder().toString(), plugin.getResource("config.yml"));
+		pre = cfg.getOrDefault("plugin-prefix", "&7[&dReservations&7] ");
+		cfg.write();
+		cfg.getOrSetDefault("plugin-prefix", "VetAssist");
+		var dw = new DataWorks();
+		dw.onLoad();
+	}
+
 	private boolean hasEssentials () {
 		if (getServer().getPluginManager().getPlugin("Essentials") != null) {
 			ess = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
@@ -64,15 +73,11 @@ public final class Reservations extends JavaPlugin {
 		}
 	}
 
-	@SuppressWarnings ("deprecation")
 	private void setupEvents () {
 		BukkitRunnable reminder = new ReminderTask();
 		Bukkit.getPluginManager().registerEvents(new VetListener(), plugin);
-//		reminder.runTaskLater(plugin, 20 * 5);
-//		bs.runTaskLater(plugin, reminder, 20 * 3); //todo shortened for testing
-		reminder.runTaskTimerAsynchronously(plugin, 20 * 3, 20 * cfg.getOrSetDefault("reminder-delay", 60));
-//		bs.scheduleSyncRepeatingTask(plugin, reminder, 20 * 300, 20 * cfg.getOrSetDefault("reminder-delay", 60));
-
+		// Initial run 5 minutes after load, then once every x (default 60 seconds)
+		reminder.runTaskTimerAsynchronously(plugin, 20 * 60 * 5, 20 * cfg.getOrSetDefault("reminder-delay", 60));
 	}
 
 	@SuppressWarnings ("deprecation")
