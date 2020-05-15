@@ -5,29 +5,39 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'java'
     id 'application'
+    id 'kr.entree.spigradle' version '1.2.4'
+    id "io.freefair.lombok" version "4.1.6"
     id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'nebula.lint' version '14.1.0'
+    id "nebula.lint" version "16.8.0"
 }
 gradleLint.rules = ['all-dependency'] // add as many rules here as you'd like
 
 group = 'me.magnum.reservations'
-version = '1.2.2'
-description = 'Simple ticket system'
+version = '1.2.3'
+description = 'Make vet appointments'
 sourceCompatibility = '1.8'
 archivesBaseName = 'Reservations' // Put your artifactId here
 
 mainClassName = 'me.magnum.reservations.Reservations'
 
+// See https://github.com/EntryPointKR/Spigradle#repositories for repository shortcodes
 repositories {
-    mavenLocal()
-    maven { url = 'http://mrmaurice.me:8081/repository/mister-repo/' }
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
-    maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
-    maven { url = 'https://ci.ender.zone/plugin/repository/everything/' }
-    maven { url = 'https://jitpack.io' }
+    paper()
+    enderZone()
+    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     mavenCentral()
+    jitpack() // For vault
 }
+
+dependencies {
+    paper()
+    essentialsX()
+//    compileOnly 'com.HakYazilim.horserpg:HorseRPGv3:3.0.1'
+    implementation 'com.github.magnum97:LightningStorage:-SNAPSHOT'
+    shadow 'fr.minuskube.inv:smart-invs:1.2.6'
+    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+}
+
 compileJava {
     options.compilerArgs += ["-parameters"]
     options.fork = true
@@ -43,42 +53,6 @@ shadowJar {
     minimize()
 }
 
-dependencies {
-    compile 'org.jetbrains:annotations:13.0'
-    compile 'co.aikar:acf-core:0.5.0-SNAPSHOT'
-    compileOnly 'io.apexcreations:HorseRPG:3.1'
-    compileOnly "com.github.MilkBowl:VaultAPI:1.7"
-    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-    compileOnly 'org.projectlombok:lombok:1.18.8'
-    annotationProcessor 'org.projectlombok:lombok:1.18.8'
-    implementation 'com.google.guava:guava:28.0-jre'
-    compile 'com.google.code.gson:gson:2.8.5'
-    compileOnly 'net.ess3:EssentialsX:2.17.0'
-
-    compile 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
-    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
-    compile 'co.aikar:acf-bukkit:0.5.0-SNAPSHOT'
-    compile 'co.aikar:acf-core:0.5.0-SNAPSHOT'
-    compile 'com.google.code.gson:gson:2.8.5'
-    compile 'me.magnum.lib:CommonLibrary:1.0.2-SNAPSHOT'
-    compile 'org.jetbrains:annotations:13.0'
-}
-/* This will replace '@VERSION@' in the plugin.yml with the version declared above, just put '@VERSION@' for the version in the plugin.yml Example plugin.yml:
-
-name: @NAME@
-main: @MAIN@
-version: @VERSION@
-authors: [Magnum1997]
-description: Make and give items special to your server.
-
-*/
-processResources {
-    filter ReplaceTokens, tokens: [
-            "VERSION": version,
-            "NAME"   : archivesBaseName,
-            "MAIN"   : mainClassName,
-    ]
-}
 task relocateShadowJar(type: ConfigureShadowRelocation) {
     target = tasks.shadowJar as ShadowJar
 //    prefix = "me.magnum.reservations" /* Default value is "shadow"*/ 
@@ -87,7 +61,6 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 tasks.shadowJar.dependsOn tasks.relocateShadowJar
 
 tasks.build.dependsOn shadowJar
-
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
