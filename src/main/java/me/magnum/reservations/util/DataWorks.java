@@ -207,6 +207,7 @@ public class DataWorks {
 					.replace("%time%", time)
 					.replace("%reason%", a.getReason())));
 
+/*
 			if (sender instanceof Player) {
 				HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create());
 				ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, click);
@@ -214,6 +215,7 @@ public class DataWorks {
 				base.setClickEvent(clickEvent);
 			}
 			else
+*/
 				sender.spigot().sendMessage(base);
 		}
 	}
